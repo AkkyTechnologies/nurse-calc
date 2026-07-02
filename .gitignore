@@ -1,0 +1,28 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Capacitor / Native iOS & Android generated outputs
+ios/App/public/
+ios/App/Pods/
+android/app/build/
+android/app/src/main/assets/public/
+android/app/src/main/jniLibs/
+android/app/libs/
+.gradle/
+local.properties
+Captures/
+
+# IDE / Editor support files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

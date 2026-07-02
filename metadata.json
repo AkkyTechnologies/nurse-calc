@@ -1,0 +1,6 @@
+{
+  "name": "Nursing Calculator",
+  "description": "An elegant, lightning-fast offline-first calculator for nurses to calculate medication dosages, drip rates, flow rates, and weight-based pediatric dosing with native iOS aesthetic.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
