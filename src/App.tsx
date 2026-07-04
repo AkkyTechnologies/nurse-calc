@@ -39,10 +39,13 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-      {/* Simulated iPhone Device Wrapper — this is the shipped app UI */}
-      <div className="w-full max-w-[412px] bg-white relative border-[12px] border-slate-950 rounded-[56px] shadow-2xl overflow-hidden">
+      {/* Simulated iPhone Device Wrapper — this is the shipped app UI.
+          Fixed at 393x852: the iPhone 16's logical point resolution, Apple's
+          current standard (non-Pro) model — the realistic device for a nurse's
+          budget, not a Pro Max. Size never changes with the browser viewport. */}
+      <div className="w-[393px] h-[852px] bg-white relative border-[12px] border-slate-950 rounded-[56px] shadow-2xl overflow-hidden flex flex-col shrink-0">
         {/* iPhone Notch & Status Bar */}
-        <div className="bg-slate-950 text-white px-6 pt-3 pb-2 flex justify-between items-center text-[10px] font-semibold tracking-tight z-30 relative select-none">
+        <div className="shrink-0 bg-slate-950 text-white px-6 pt-3 pb-2 flex justify-between items-center text-[10px] font-semibold tracking-tight z-30 relative select-none">
           <span>07:57 AM</span>
 
           {/* Dynamic Island Pill */}
@@ -57,22 +60,27 @@ export default function App() {
           </div>
         </div>
 
-        {/* Title Bar */}
-        <div className="px-5 py-4 border-b-2 border-slate-100 flex items-center justify-between bg-white">
-          <div>
-            <span className="text-[9px] text-teal-600 font-bold uppercase tracking-widest">Nurse Calc</span>
-            <h3 className="text-base font-bold text-slate-900 tracking-tight">
-              {activeTab === 'planner' && 'Dashboard Overview'}
-              {activeTab === 'dosage' && 'Dosage (Desired/Have)'}
-              {activeTab === 'drip-rate' && 'IV Drip Rate (gtts/min)'}
-              {activeTab === 'flow-rate' && 'IV Flow Rate (mL/hr)'}
-              {activeTab === 'pediatric' && 'Pediatric Weight Dose'}
-            </h3>
-          </div>
+        {/* Title Bar — compact single row; tap the app icon to return to the dashboard */}
+        <div className="shrink-0 px-4 py-2.5 border-b-2 border-slate-100 flex items-center gap-2.5 bg-white">
+          <button
+            type="button"
+            onClick={() => setActiveTab('planner')}
+            title="Return to Dashboard Overview"
+            className="shrink-0 rounded-[9px] cursor-pointer transition-transform active:scale-90"
+          >
+            <img src="/nurse-calc-icon.svg" alt="Nurse Calc" className="w-7 h-7 rounded-[9px]" />
+          </button>
+          <h3 className="text-[13px] font-bold text-slate-900 tracking-tight truncate">
+            {activeTab === 'planner' && 'Dashboard Overview'}
+            {activeTab === 'dosage' && 'Dosage (Desired/Have)'}
+            {activeTab === 'drip-rate' && 'IV Drip Rate (gtts/min)'}
+            {activeTab === 'flow-rate' && 'IV Flow Rate (mL/hr)'}
+            {activeTab === 'pediatric' && 'Pediatric Weight Dose'}
+          </h3>
         </div>
 
-        {/* Viewport Inner Body */}
-        <div className="p-5 bg-white min-h-[480px] max-h-[620px] overflow-y-auto">
+        {/* Viewport Inner Body — fills whatever space is left in the fixed frame */}
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 bg-white">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -136,7 +144,7 @@ export default function App() {
         <BottomTabBar activeTab={activeTab} onChange={setActiveTab} />
 
         {/* iPhone Home Screen Indicator Bar */}
-        <div className="bg-white py-3.5 border-t border-slate-100 flex justify-center items-center select-none z-30 relative">
+        <div className="shrink-0 bg-white py-3.5 border-t border-slate-100 flex justify-center items-center select-none z-30 relative">
           <button
             onClick={() => setActiveTab('planner')}
             className="w-28 h-1 bg-slate-300 rounded-full hover:bg-slate-500 transition-colors cursor-pointer"

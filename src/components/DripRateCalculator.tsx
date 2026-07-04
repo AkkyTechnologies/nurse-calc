@@ -17,6 +17,8 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
   const [isAnimating, setIsAnimating] = useState(true);
   const [dropCount, setDropCount] = useState(0);
   const [showFormula, setShowFormula] = useState(false);
+  // Tap the chamber to magnify it; tap again to shrink.
+  const [isMagnified, setIsMagnified] = useState(false);
 
   // Transfer prefill hook
   useEffect(() => {
@@ -64,8 +66,8 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
       {/* Main Math Formula Result Container with Metronome Drop Chamber */}
       <div className="bg-white border-2 border-slate-200 rounded-[32px] p-6 shadow-sm relative overflow-hidden text-center flex flex-col items-center">
         <div className="w-full flex justify-between items-center mb-4 px-1">
-          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-teal-600 animate-pulse" />
+          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400 flex items-center gap-1 whitespace-nowrap">
+            <ShieldCheck className="w-3.5 h-3.5 text-teal-600 animate-pulse shrink-0" />
             GRAVITY DRIP RATE
           </div>
           <div className="flex items-center gap-1.5">
@@ -109,46 +111,37 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
           </p>
         )}
 
-        {/* Drop Chamber Simulator Graphic */}
-        <div className="w-full flex items-center justify-center py-4 bg-slate-50 border border-slate-200 rounded-2xl relative my-5">
-          <div className="w-14 h-28 bg-white border-2 border-slate-300 rounded-full flex flex-col items-center justify-between py-1 relative shadow-inner overflow-hidden">
-            {/* IV Needle Top Inlet */}
-            <div className="w-2.5 h-4 bg-slate-400 rounded-sm relative">
-              {/* Dripping Droplet */}
-              {isAnimating && dripRate > 0 && (
-                <motion.div
-                  key={dropCount}
-                  initial={{ y: 2, opacity: 1, scale: 0.8 }}
-                  animate={{ y: 68, opacity: [1, 1, 0.7, 0] }}
-                  transition={{ duration: Math.min(1.2, dripIntervalMs / 1000), ease: 'easeIn' }}
-                  className="w-2.5 h-2.5 bg-teal-400 rounded-full rounded-tr-none rotate-45 absolute left-1/2 -translate-x-1/2 shadow-sm"
-                />
-              )}
-            </div>
+        {/* Drop Chamber Simulator Graphic — realistic glass IV chamber; tap to magnify */}
+        <motion.div
+          className="w-full flex items-center justify-center bg-slate-50 border border-slate-200 rounded-2xl relative my-5 overflow-hidden"
+          animate={{ paddingTop: isMagnified ? 92 : 20, paddingBottom: isMagnified ? 60 : 20 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+        >
+          <DripChamber
+            isAnimating={isAnimating}
+            dripRate={dripRate}
+            dropCount={dropCount}
+            dripIntervalMs={dripIntervalMs}
+            isMagnified={isMagnified}
+            onToggle={() => setIsMagnified((m) => !m)}
+          />
 
-            {/* Drip chamber surface line */}
-            <div className="w-full h-6 bg-teal-500/5 border-t border-teal-500/20 flex items-center justify-center relative">
-              <div className="text-[8px] text-teal-600/50 font-bold uppercase tracking-wider">Fluid Level</div>
-              {/* Rippling effects on drop impact */}
-              {isAnimating && dripRate > 0 && (
-                <motion.div
-                  key={`ripple-${dropCount}`}
-                  initial={{ scale: 0.5, opacity: 0.8 }}
-                  animate={{ scale: 2.2, opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="w-6 h-1 border border-teal-500/30 rounded-full absolute -top-0.5 left-1/2 -translate-x-1/2"
-                />
-              )}
-            </div>
-          </div>
+          {dripRate > 0 && (
+            <motion.div
+              className="absolute right-4 text-right hidden sm:block z-[3]"
+              animate={{ top: isMagnified ? 78 : 12 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+            >
+              <span className="text-xs text-slate-700 font-bold font-mono block">
+                1 drop / {(dripIntervalMs / 1000).toFixed(2)}s
+              </span>
+            </motion.div>
+          )}
 
-          <div className="absolute right-4 text-right hidden sm:block">
-            <span className="text-[9px] text-slate-400 uppercase font-bold tracking-widest block">Metronome Count</span>
-            <span className="text-xs text-slate-700 font-bold font-mono block mt-0.5">
-              1 drop / {(dripIntervalMs / 1000).toFixed(2)}s
-            </span>
+          <div className="pointer-events-none absolute inset-x-0 bottom-2 text-center text-[8px] font-bold uppercase tracking-[0.14em] text-slate-400 z-[3]">
+            {isMagnified ? 'Tap chamber to shrink' : 'Tap chamber to magnify'}
           </div>
-        </div>
+        </motion.div>
 
         {dripRate > 0 && showFormula && (
           <div className="w-full text-left bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2 text-xs text-slate-500 font-mono">
@@ -293,5 +286,152 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
         </div>
       </div>
     </div>
+  );
+}
+
+// Realistic gravity IV drip chamber — glass tube, spike + nozzle, forming/
+// falling drop, fluid pool with meniscus, and an impact ripple. Tap to magnify.
+function DripChamber({
+  isAnimating,
+  dripRate,
+  dropCount,
+  dripIntervalMs,
+  isMagnified,
+  onToggle,
+}: {
+  isAnimating: boolean;
+  dripRate: number;
+  dropCount: number;
+  dripIntervalMs: number;
+  isMagnified: boolean;
+  onToggle: () => void;
+}) {
+  const active = isAnimating && dripRate > 0;
+  // Finish the fall a touch before the next beat.
+  const dropDuration = Math.min(1.2, Math.max(0.3, dripIntervalMs / 1000)) * 0.9;
+
+  const glass =
+    'linear-gradient(102deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.92) 12%, ' +
+    'rgba(241,245,249,.32) 30%, rgba(255,255,255,.02) 50%, rgba(148,163,184,.13) 72%, ' +
+    'rgba(255,255,255,.62) 90%, rgba(255,255,255,0) 100%)';
+
+  return (
+    <motion.div
+      onClick={onToggle}
+      title={isMagnified ? 'Tap to shrink' : 'Tap to magnify'}
+      animate={{ scale: isMagnified ? 1.78 : 1 }}
+      transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+      className="relative w-[66px] cursor-pointer select-none z-[2]"
+      style={{ transformOrigin: 'center center' }}
+    >
+      {/* Spike port / cap on top of the chamber */}
+      <div
+        className="mx-auto h-[18px] w-[30px] rounded-t-[5px] rounded-b-[2px]"
+        style={{
+          background:
+            'linear-gradient(90deg,#94a3b8,#cbd5e1 32%,#eef2f6 50%,#cbd5e1 68%,#94a3b8)',
+          boxShadow: '0 1px 2px rgba(15,23,42,.18)',
+        }}
+      />
+      <div
+        className="mx-auto -mt-px h-2 w-[46px] rounded-t-md rounded-b-[2px]"
+        style={{
+          background:
+            'linear-gradient(90deg,rgba(148,163,184,.6),rgba(226,232,240,.9) 50%,rgba(148,163,184,.6))',
+        }}
+      />
+
+      {/* Glass tube */}
+      <div
+        className="relative mx-auto h-[150px] w-[60px] overflow-hidden"
+        style={{
+          background: glass,
+          border: '1.5px solid rgba(148,163,184,.55)',
+          borderTop: 'none',
+          borderRadius: '4px 4px 30px 30px',
+          boxShadow:
+            'inset 0 2px 6px rgba(255,255,255,.7), inset 0 -6px 14px rgba(15,118,110,.12), 0 4px 12px rgba(15,23,42,.10)',
+        }}
+      >
+        {/* Spike nozzle */}
+        <div
+          className="absolute top-0 left-1/2 h-3 w-1.5 -translate-x-1/2"
+          style={{ background: 'linear-gradient(90deg,#94a3b8,#e2e8f0 50%,#94a3b8)' }}
+        />
+        <div
+          className="absolute top-3 left-1/2 -translate-x-1/2"
+          style={{
+            width: 0,
+            height: 0,
+            borderLeft: '5px solid transparent',
+            borderRight: '5px solid transparent',
+            borderTop: '10px solid #94a3b8',
+          }}
+        />
+
+        {/* Fluid pool */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-14"
+          style={{
+            background: 'linear-gradient(180deg,#2dd4bf 0%,#14b8a6 46%,#0d9488 100%)',
+            boxShadow: 'inset 0 3px 6px rgba(240,253,250,.35)',
+          }}
+        />
+        {/* Pool surface meniscus */}
+        <div
+          className="absolute bottom-[52px] left-[3px] right-[3px] h-2 rounded-[50%]"
+          style={{
+            background: 'linear-gradient(180deg,rgba(240,253,250,.85),rgba(45,212,191,.2))',
+            boxShadow: '0 -1px 3px rgba(240,253,250,.5)',
+          }}
+        />
+
+        {/* Falling drop — swell, pinch-off, fall, splash-flatten */}
+        {active && (
+          <motion.div
+            key={dropCount}
+            initial={{ y: 0, scaleX: 0.35, scaleY: 0.25, opacity: 0 }}
+            animate={{
+              y: [0, 1, 6, 66, 74],
+              scaleX: [0.35, 0.9, 0.95, 0.9, 1.35],
+              scaleY: [0.25, 1.1, 0.95, 1.05, 0.5],
+              opacity: [0, 1, 1, 1, 0],
+            }}
+            transition={{ duration: dropDuration, ease: 'easeIn', times: [0, 0.14, 0.3, 0.72, 1] }}
+            className="absolute left-1/2 top-[22px] h-3.5 w-3 -translate-x-1/2 z-[2]"
+            style={{
+              background:
+                'radial-gradient(circle at 34% 28%,#ccfbf1 0%,#2dd4bf 42%,#0d9488 100%)',
+              borderRadius: '52% 52% 50% 50% / 62% 62% 42% 42%',
+              boxShadow: '0 1px 2px rgba(13,148,136,.4), inset 0 -1px 2px rgba(15,118,110,.5)',
+            }}
+          />
+        )}
+        {/* Impact ripple */}
+        {active && (
+          <motion.div
+            key={`ripple-${dropCount}`}
+            initial={{ scale: 0.2, opacity: 0 }}
+            animate={{ scale: [0.2, 0.2, 1.7], opacity: [0, 0.7, 0] }}
+            transition={{ duration: dropDuration, ease: 'easeOut', times: [0, 0.66, 1] }}
+            className="absolute bottom-[54px] left-1/2 h-[7px] w-[22px] -translate-x-1/2 rounded-[50%] z-[2]"
+            style={{ border: '1.5px solid rgba(255,255,255,.8)' }}
+          />
+        )}
+
+        {/* Glass gloss highlights */}
+        <div
+          className="pointer-events-none absolute left-[9px] top-1.5 h-32 w-2 rounded-full"
+          style={{
+            background: 'linear-gradient(180deg,rgba(255,255,255,.8),rgba(255,255,255,.12))',
+            filter: 'blur(.5px)',
+          }}
+        />
+        <div
+          className="pointer-events-none absolute right-2 top-3.5 h-[108px] w-1 rounded-full"
+          style={{ background: 'rgba(255,255,255,.4)' }}
+        />
+      </div>
+    </motion.div>
   );
 }

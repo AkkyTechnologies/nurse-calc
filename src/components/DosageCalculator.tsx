@@ -339,7 +339,7 @@ export default function DosageCalculator() {
           <Info className="w-3.5 h-3.5" />
         </button>
 
-        <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 mb-3 flex items-center justify-center gap-1.5">
+        <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-3 flex items-center justify-center gap-1.5">
           <ShieldCheck className="w-3.5 h-3.5 text-teal-600 animate-pulse" />
           CALCULATED RESULT (OFFLINE SECURE)
         </div>
