@@ -1,14 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { MedicationPreset } from '../types';
 import { INITIAL_PRESETS } from '../presetsData';
-import { Save, Trash2, ShieldCheck, RefreshCw, Info } from 'lucide-react';
+import { Save, ShieldCheck, Info, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import PresetCarousel from './PresetCarousel';
+import FavoriteNameForm from './FavoriteNameForm';
+import { useFavorites } from '../hooks/useFavorites';
 
 export default function DosageCalculator() {
-  const [presets, setPresets] = useState<MedicationPreset[]>(() => {
-    const saved = localStorage.getItem('nurse_calc_presets');
-    return saved ? JSON.parse(saved) : INITIAL_PRESETS;
-  });
+  const {
+    favorites: presets,
+    add: addPreset,
+    update: updatePreset,
+    rename: renamePreset,
+    remove: removePreset,
+  } = useFavorites<MedicationPreset>('nurse_calc_presets', INITIAL_PRESETS);
+  const [activePresetId, setActivePresetId] = useState<string | null>(null);
+  const [editingPresets, setEditingPresets] = useState(false);
+  const [formMode, setFormMode] = useState<'add' | 'rename' | null>(null);
+  const [renamingPreset, setRenamingPreset] = useState<MedicationPreset | null>(null);
 
   const [desiredDose, setDesiredDose] = useState<string>('4');
   const [desiredUnit, setDesiredUnit] = useState<string>('mg');
@@ -16,11 +26,19 @@ export default function DosageCalculator() {
   const [haveUnit, setHaveUnit] = useState<string>('mg');
   const [quantity, setQuantity] = useState<string>('1');
   const [quantityUnit, setQuantityUnit] = useState<string>('mL');
-  
-  const [newPresetName, setNewPresetName] = useState('');
-  const [showSaveDialog, setShowSaveDialog] = useState(false);
+
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'warning' | 'info' } | null>(null);
   const [showFormula, setShowFormula] = useState<boolean>(false);
+
+  const activePreset = presets.find((p) => p.id === activePresetId) || null;
+  const isDirty =
+    !!activePreset &&
+    (activePreset.desiredDose !== (parseFloat(desiredDose) || 0) ||
+      activePreset.desiredUnit !== desiredUnit ||
+      activePreset.haveDose !== (parseFloat(haveDose) || 0) ||
+      activePreset.haveUnit !== haveUnit ||
+      activePreset.quantity !== (parseFloat(quantity) || 0) ||
+      activePreset.quantityUnit !== quantityUnit);
 
   // Auto conversion alert/helper
   useEffect(() => {
@@ -82,39 +100,51 @@ export default function DosageCalculator() {
     setHaveUnit(preset.haveUnit);
     setQuantity(preset.quantity.toString());
     setQuantityUnit(preset.quantityUnit);
+    setActivePresetId(preset.id);
     setMessage({ text: `Loaded preset: ${preset.name}`, type: 'success' });
     setTimeout(() => setMessage(null), 3000);
   };
 
-  const handleSavePreset = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newPresetName.trim()) return;
-
-    const newPreset: MedicationPreset = {
-      id: `preset_${Date.now()}`,
-      name: newPresetName.trim(),
+  const handleAddFavorite = (name: string) => {
+    const id = addPreset({
+      name,
       desiredDose: parseFloat(desiredDose) || 0,
       desiredUnit,
       haveDose: parseFloat(haveDose) || 0,
       haveUnit,
       quantity: parseFloat(quantity) || 0,
-      quantityUnit
-    };
-
-    const updated = [...presets, newPreset];
-    setPresets(updated);
-    localStorage.setItem('nurse_calc_presets', JSON.stringify(updated));
-    setNewPresetName('');
-    setShowSaveDialog(false);
-    setMessage({ text: `Saved drug preset "${newPreset.name}"`, type: 'success' });
+      quantityUnit,
+    });
+    setActivePresetId(id);
+    setFormMode(null);
+    setMessage({ text: `Saved drug preset "${name}"`, type: 'success' });
     setTimeout(() => setMessage(null), 3000);
   };
 
-  const handleDeletePreset = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const updated = presets.filter((p) => p.id !== id);
-    setPresets(updated);
-    localStorage.setItem('nurse_calc_presets', JSON.stringify(updated));
+  const handleUpdateFavorite = () => {
+    if (!activePreset) return;
+    updatePreset(activePreset.id, {
+      desiredDose: parseFloat(desiredDose) || 0,
+      desiredUnit,
+      haveDose: parseFloat(haveDose) || 0,
+      haveUnit,
+      quantity: parseFloat(quantity) || 0,
+      quantityUnit,
+    });
+    setMessage({ text: `Updated "${activePreset.name}"`, type: 'success' });
+    setTimeout(() => setMessage(null), 3000);
+  };
+
+  const handleRenameFavorite = (name: string) => {
+    if (!renamingPreset) return;
+    renamePreset(renamingPreset.id, name);
+    setRenamingPreset(null);
+    setFormMode(null);
+  };
+
+  const handleDeletePreset = (id: string) => {
+    removePreset(id);
+    if (activePresetId === id) setActivePresetId(null);
     setMessage({ text: 'Preset deleted', type: 'info' });
     setTimeout(() => setMessage(null), 3000);
   };
@@ -148,37 +178,35 @@ export default function DosageCalculator() {
 
   return (
     <div className="space-y-5" id="dosage-calc-container">
-      {/* Preset Pills */}
+      {/* Preset Carousel */}
       <div>
         <div className="flex items-center justify-between mb-2 px-1">
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Fast Presets & Saved Drugs</span>
-          <span className="text-[10px] font-semibold text-slate-400">Tap to load</span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Favorites</span>
+          <button
+            type="button"
+            onClick={() => {
+              setEditingPresets((prev) => !prev);
+              setFormMode(null);
+            }}
+            disabled={presets.length === 0}
+            className="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-600 transition-colors disabled:opacity-40 disabled:hover:text-slate-400"
+          >
+            {editingPresets ? 'Done' : 'Edit'}
+          </button>
         </div>
-        <div className="flex flex-wrap gap-2 p-2 bg-slate-50 border border-slate-200 rounded-2xl">
-          {presets.map((preset) => (
-            <div
-              key={preset.id}
-              onClick={() => loadPreset(preset)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 text-slate-700 text-xs rounded-xl font-bold cursor-pointer hover:border-teal-500 hover:text-teal-600 hover:bg-teal-50/20 shadow-xs transition-all"
-            >
-              <div className="w-1.5 h-3.5 bg-teal-600 rounded-full" />
-              <span className="font-semibold">{preset.name}</span>
-              <span className="text-[10px] text-slate-400 font-mono font-medium">
-                ({preset.desiredDose} {preset.desiredUnit})
-              </span>
-              <button
-                onClick={(e) => handleDeletePreset(preset.id, e)}
-                className="text-slate-300 hover:text-rose-600 transition-colors ml-1 p-0.5 rounded-md"
-                title="Delete preset"
-              >
-                <Trash2 className="w-3 h-3" />
-              </button>
-            </div>
-          ))}
-          {presets.length === 0 && (
-            <span className="text-xs text-slate-400 italic px-2 py-1">No presets saved. Save your current dosing setup below.</span>
-          )}
-        </div>
+        <PresetCarousel
+          presets={presets}
+          activeId={activePresetId}
+          onLoad={loadPreset}
+          editing={editingPresets}
+          onDelete={handleDeletePreset}
+          onRename={(preset) => {
+            setRenamingPreset(preset);
+            setFormMode('rename');
+          }}
+          renderMeta={(preset) => `${preset.desiredDose} ${preset.desiredUnit}`}
+          emptyLabel="No presets saved. Save your current dosing setup below."
+        />
       </div>
 
       {/* Main Form Fields */}
@@ -345,50 +373,62 @@ export default function DosageCalculator() {
         )}
       </div>
 
-      {/* Save Custom Drug Form Toggle */}
+      {/* Save / Update / Rename Favorite */}
       <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        {!showSaveDialog ? (
+        {formMode === null ? (
           <>
             <div className="flex-1">
-              <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Frequently use this dose?</h4>
-              <p className="text-[10px] text-slate-500 mt-0.5">Save it as a quick-access pill to skip typing next time.</p>
+              <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                {activePreset && isDirty ? 'Update this favorite?' : 'Frequently use this dose?'}
+              </h4>
+              <p className="text-[10px] text-slate-500 mt-0.5">
+                {activePreset && isDirty
+                  ? `Overwrite "${activePreset.name}" or keep it and save a new one.`
+                  : 'Save it as a quick-access card to skip typing next time.'}
+              </p>
             </div>
-            <button
-              onClick={() => setShowSaveDialog(true)}
-              className="bg-teal-600 hover:bg-teal-700 text-white text-xs px-4 py-2.5 rounded-xl font-bold uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-1.5"
-            >
-              <Save className="w-3.5 h-3.5" /> Save Drug Preset
-            </button>
+            <div className="flex gap-2 shrink-0">
+              {activePreset && isDirty && (
+                <button
+                  onClick={handleUpdateFavorite}
+                  className="bg-teal-600 hover:bg-teal-700 text-white text-xs px-4 py-2.5 rounded-xl font-bold uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-1.5"
+                >
+                  <Save className="w-3.5 h-3.5" /> Update
+                </button>
+              )}
+              <button
+                onClick={() => setFormMode('add')}
+                className={`text-xs px-4 py-2.5 rounded-xl font-bold uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-1.5 ${
+                  activePreset && isDirty
+                    ? 'bg-white border-2 border-slate-200 text-slate-700 hover:border-teal-500'
+                    : 'bg-teal-600 hover:bg-teal-700 text-white'
+                }`}
+              >
+                {activePreset && isDirty ? <Plus className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
+                {activePreset && isDirty ? 'Add New' : 'Save Drug Preset'}
+              </button>
+            </div>
           </>
+        ) : formMode === 'add' ? (
+          <FavoriteNameForm
+            title="Save Current Concentration"
+            placeholder="Medication Name (e.g. Fentanyl IV)"
+            submitLabel="Save"
+            onSubmit={handleAddFavorite}
+            onCancel={() => setFormMode(null)}
+          />
         ) : (
-          <form onSubmit={handleSavePreset} className="w-full space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Save Current Concentration</h4>
-              <button
-                type="button"
-                onClick={() => setShowSaveDialog(false)}
-                className="text-xs font-bold text-rose-600 hover:text-rose-700 uppercase tracking-wider"
-              >
-                Cancel
-              </button>
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Medication Name (e.g. Fentanyl IV)"
-                value={newPresetName}
-                onChange={(e) => setNewPresetName(e.target.value)}
-                required
-                className="flex-1 px-4 py-2.5 text-xs font-semibold border-2 border-slate-200 rounded-xl bg-white focus:outline-teal-600"
-              />
-              <button
-                type="submit"
-                className="bg-teal-600 hover:bg-teal-700 text-white px-5 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
-              >
-                Save
-              </button>
-            </div>
-          </form>
+          <FavoriteNameForm
+            title="Rename Favorite"
+            initialName={renamingPreset?.name}
+            placeholder="Favorite name"
+            submitLabel="Rename"
+            onSubmit={handleRenameFavorite}
+            onCancel={() => {
+              setFormMode(null);
+              setRenamingPreset(null);
+            }}
+          />
         )}
       </div>
     </div>

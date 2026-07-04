@@ -1,56 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Info, AlertTriangle, Scale } from 'lucide-react';
+import React, { useState } from 'react';
+import { ShieldCheck, Info, AlertTriangle, Save, Plus } from 'lucide-react';
 import { motion } from 'motion/react';
-
-interface PediatricPreset {
-  name: string;
-  recommendedDose: number;
-  dosingType: 'day' | 'dose'; // mg/kg/day vs mg/kg/dose
-  defaultDividedBy: number;
-  maxAdultDoseMg: number;
-}
-
-const PEDIATRIC_DRUGS: PediatricPreset[] = [
-  {
-    name: 'Amoxicillin (High Dose)',
-    recommendedDose: 90,
-    dosingType: 'day',
-    defaultDividedBy: 2,
-    maxAdultDoseMg: 2000,
-  },
-  {
-    name: 'Acetaminophen (Tylenol)',
-    recommendedDose: 15,
-    dosingType: 'dose',
-    defaultDividedBy: 1,
-    maxAdultDoseMg: 1000, // single dose max
-  },
-  {
-    name: 'Ibuprofen (Motrin)',
-    recommendedDose: 10,
-    dosingType: 'dose',
-    defaultDividedBy: 1,
-    maxAdultDoseMg: 800, // single dose max
-  },
-  {
-    name: 'Cephalexin (Keflex)',
-    recommendedDose: 40,
-    dosingType: 'day',
-    defaultDividedBy: 4,
-    maxAdultDoseMg: 1000, // standard day max
-  }
-];
+import { PediatricPreset } from '../types';
+import { INITIAL_PEDIATRIC_PRESETS } from '../presetsData';
+import { useFavorites } from '../hooks/useFavorites';
+import PresetCarousel from './PresetCarousel';
+import FavoriteNameForm from './FavoriteNameForm';
 
 export default function PediatricCalculator() {
+  const {
+    favorites: drugPresets,
+    add: addDrugPreset,
+    update: updateDrugPreset,
+    rename: renameDrugPreset,
+    remove: removeDrugPreset,
+  } = useFavorites<PediatricPreset>('nurse_calc_pediatric_presets', INITIAL_PEDIATRIC_PRESETS);
+
   const [weight, setWeight] = useState<string>('15');
   const [weightUnit, setWeightUnit] = useState<'kg' | 'lb'>('kg');
-  
+
   const [targetDoseMultiplier, setTargetDoseMultiplier] = useState<string>('15');
   const [dosingType, setDosingType] = useState<'day' | 'dose'>('dose');
   const [dividedBy, setDividedBy] = useState<string>('1');
   const [maxAdultCap, setMaxAdultCap] = useState<string>('1000');
 
-  const [activeDrug, setActiveDrug] = useState<string>('');
+  const [activeDrugId, setActiveDrugId] = useState<string | null>(null);
+  const [editingPresets, setEditingPresets] = useState(false);
+  const [formMode, setFormMode] = useState<'add' | 'rename' | null>(null);
+  const [renamingPreset, setRenamingPreset] = useState<PediatricPreset | null>(null);
   const [showFormula, setShowFormula] = useState<boolean>(false);
 
   const handleLoadDrug = (drug: PediatricPreset) => {
@@ -58,7 +35,49 @@ export default function PediatricCalculator() {
     setDosingType(drug.dosingType);
     setDividedBy(drug.defaultDividedBy.toString());
     setMaxAdultCap(drug.maxAdultDoseMg.toString());
-    setActiveDrug(drug.name);
+    setActiveDrugId(drug.id);
+  };
+
+  const activeDrug = drugPresets.find((d) => d.id === activeDrugId) || null;
+  const isDirty =
+    !!activeDrug &&
+    (activeDrug.recommendedDose !== (parseFloat(targetDoseMultiplier) || 0) ||
+      activeDrug.dosingType !== dosingType ||
+      activeDrug.defaultDividedBy !== (parseInt(dividedBy) || 1) ||
+      activeDrug.maxAdultDoseMg !== (parseFloat(maxAdultCap) || 0));
+
+  const handleAddFavorite = (name: string) => {
+    const id = addDrugPreset({
+      name,
+      recommendedDose: parseFloat(targetDoseMultiplier) || 0,
+      dosingType,
+      defaultDividedBy: parseInt(dividedBy) || 1,
+      maxAdultDoseMg: parseFloat(maxAdultCap) || 0,
+    });
+    setActiveDrugId(id);
+    setFormMode(null);
+  };
+
+  const handleUpdateFavorite = () => {
+    if (!activeDrug) return;
+    updateDrugPreset(activeDrug.id, {
+      recommendedDose: parseFloat(targetDoseMultiplier) || 0,
+      dosingType,
+      defaultDividedBy: parseInt(dividedBy) || 1,
+      maxAdultDoseMg: parseFloat(maxAdultCap) || 0,
+    });
+  };
+
+  const handleRenameFavorite = (name: string) => {
+    if (!renamingPreset) return;
+    renameDrugPreset(renamingPreset.id, name);
+    setRenamingPreset(null);
+    setFormMode(null);
+  };
+
+  const handleDeleteFavorite = (id: string) => {
+    removeDrugPreset(id);
+    if (activeDrugId === id) setActiveDrugId(null);
   };
 
   // Convert weight to kg for standard formulas
@@ -87,29 +106,35 @@ export default function PediatricCalculator() {
 
   return (
     <div className="space-y-4" id="pediatric-calc-container">
-      {/* Popular pediatric medications selection */}
+      {/* Favorites: pediatric dosing guidelines */}
       <div>
         <div className="flex items-center justify-between mb-1.5 px-1">
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Common Pediatric Multipliers</span>
-          <span className="text-[10px] font-semibold text-slate-400">Tap to load guideline</span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Favorites</span>
+          <button
+            type="button"
+            onClick={() => {
+              setEditingPresets((prev) => !prev);
+              setFormMode(null);
+            }}
+            disabled={drugPresets.length === 0}
+            className="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-teal-600 transition-colors disabled:opacity-40 disabled:hover:text-slate-400"
+          >
+            {editingPresets ? 'Done' : 'Edit'}
+          </button>
         </div>
-        <div className="flex flex-wrap gap-1.5 p-2 bg-slate-50 border border-slate-200 rounded-2xl">
-          {PEDIATRIC_DRUGS.map((drug) => (
-            <button
-              key={drug.name}
-              onClick={() => handleLoadDrug(drug)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] rounded-lg border transition-all font-bold cursor-pointer ${
-                activeDrug === drug.name
-                  ? 'bg-teal-50 border-teal-500 text-teal-700 shadow-xs'
-                  : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
-              }`}
-            >
-              <div className={`w-1.5 h-1.5 rounded-full ${activeDrug === drug.name ? 'bg-teal-600' : 'bg-slate-300'}`} />
-              <span>{drug.name}</span>
-              <span className="text-[9px] text-slate-400 font-mono font-medium">({drug.recommendedDose} mg/kg)</span>
-            </button>
-          ))}
-        </div>
+        <PresetCarousel
+          presets={drugPresets}
+          activeId={activeDrugId}
+          onLoad={handleLoadDrug}
+          editing={editingPresets}
+          onDelete={handleDeleteFavorite}
+          onRename={(preset) => {
+            setRenamingPreset(preset);
+            setFormMode('rename');
+          }}
+          renderMeta={(preset) => `${preset.recommendedDose} mg/kg${preset.dosingType === 'day' ? '/day' : ''}`}
+          emptyLabel="No favorites saved. Save your current guideline setup below."
+        />
       </div>
 
       {/* Main Inputs Form */}
@@ -127,10 +152,7 @@ export default function PediatricCalculator() {
                 pattern="[0-9]*"
                 placeholder="0.0"
                 value={weight}
-                onChange={(e) => {
-                  setWeight(e.target.value);
-                  setActiveDrug('');
-                }}
+                onChange={(e) => setWeight(e.target.value)}
                 className="w-full px-2.5 bg-transparent outline-none text-base font-bold font-mono"
                 id="pediatric-weight-input"
               />
@@ -168,10 +190,7 @@ export default function PediatricCalculator() {
                 pattern="[0-9]*"
                 placeholder="10"
                 value={targetDoseMultiplier}
-                onChange={(e) => {
-                  setTargetDoseMultiplier(e.target.value);
-                  setActiveDrug('');
-                }}
+                onChange={(e) => setTargetDoseMultiplier(e.target.value)}
                 className="w-full px-2.5 bg-transparent outline-none text-base font-bold font-mono"
                 id="pediatric-multiplier-input"
               />
@@ -323,6 +342,65 @@ export default function PediatricCalculator() {
               </div>
             )}
           </div>
+        )}
+      </div>
+
+      {/* Save / Update / Rename Favorite */}
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {formMode === null ? (
+          <>
+            <div className="flex-1">
+              <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                {activeDrug && isDirty ? 'Update this favorite?' : 'Save this dosing guideline?'}
+              </h4>
+              <p className="text-[10px] text-slate-500 mt-0.5">
+                {activeDrug && isDirty
+                  ? `Overwrite "${activeDrug.name}" or keep it and save a new one.`
+                  : 'Add to Favorites for one-tap reuse.'}
+              </p>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              {activeDrug && isDirty && (
+                <button
+                  onClick={handleUpdateFavorite}
+                  className="bg-teal-600 hover:bg-teal-700 text-white text-xs px-4 py-2.5 rounded-xl font-bold uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-1.5"
+                >
+                  <Save className="w-3.5 h-3.5" /> Update
+                </button>
+              )}
+              <button
+                onClick={() => setFormMode('add')}
+                className={`text-xs px-4 py-2.5 rounded-xl font-bold uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-1.5 ${
+                  activeDrug && isDirty
+                    ? 'bg-white border-2 border-slate-200 text-slate-700 hover:border-teal-500'
+                    : 'bg-teal-600 hover:bg-teal-700 text-white'
+                }`}
+              >
+                {activeDrug && isDirty ? <Plus className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
+                {activeDrug && isDirty ? 'Add New' : 'Save Favorite'}
+              </button>
+            </div>
+          </>
+        ) : formMode === 'add' ? (
+          <FavoriteNameForm
+            title="Save Current Guideline"
+            placeholder="Drug name (e.g. Cefdinir)"
+            submitLabel="Save"
+            onSubmit={handleAddFavorite}
+            onCancel={() => setFormMode(null)}
+          />
+        ) : (
+          <FavoriteNameForm
+            title="Rename Favorite"
+            initialName={renamingPreset?.name}
+            placeholder="Favorite name"
+            submitLabel="Rename"
+            onSubmit={handleRenameFavorite}
+            onCancel={() => {
+              setFormMode(null);
+              setRenamingPreset(null);
+            }}
+          />
         )}
       </div>
     </div>

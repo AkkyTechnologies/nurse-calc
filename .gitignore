@@ -26,3 +26,6 @@ Captures/
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code local-only settings (personal, not shared project config)
+.claude/settings.local.json

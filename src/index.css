@@ -5,3 +5,26 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Launch splash: the product icon morphs from grayscale into full color. */
+@keyframes splash-morph {
+  0% {
+    filter: grayscale(1) brightness(1.06);
+    transform: scale(0.86);
+  }
+  45% {
+    filter: grayscale(0.85) brightness(1.03);
+    transform: scale(0.97);
+  }
+  100% {
+    filter: none;
+    transform: scale(1);
+  }
+}
