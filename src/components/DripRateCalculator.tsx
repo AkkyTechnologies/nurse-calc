@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Info, Play, Pause } from 'lucide-react';
+import { ShieldCheck, Info, Play, Pause, Maximize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface DripRateCalculatorProps {
@@ -103,7 +103,7 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
           {dripRate > 0 ? Math.round(dripRate) : '0'}
         </div>
         <div className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-[0.15em]">
-          Drops per Minute (gtts/min)
+          Drops per Minute
         </div>
         {dripRate > 0 && (
           <p className="text-[10px] text-slate-400 font-mono mt-1">
@@ -138,9 +138,16 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
             </motion.div>
           )}
 
-          <div className="pointer-events-none absolute inset-x-0 bottom-2 text-center text-[8px] font-bold uppercase tracking-[0.14em] text-slate-400 z-[3]">
-            {isMagnified ? 'Tap chamber to shrink' : 'Tap chamber to magnify'}
-          </div>
+          <motion.button
+            type="button"
+            onClick={() => setIsMagnified((m) => !m)}
+            title={isMagnified ? 'Tap to shrink' : 'Tap to magnify'}
+            animate={{ rotate: isMagnified ? 180 : 0, scale: isMagnified ? 0.9 : 1 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+            className="absolute right-2.5 bottom-2.5 z-[3] flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white/80 text-slate-500 shadow-sm backdrop-blur-sm cursor-pointer transition-colors hover:text-teal-600"
+          >
+            <Maximize2 size={13} strokeWidth={2.5} />
+          </motion.button>
         </motion.div>
 
         {dripRate > 0 && showFormula && (
@@ -166,7 +173,7 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
         {/* IV Fluid Volume */}
         <div className="space-y-1.5">
           <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
-            Total Infusion Volume (mL)
+            Total Infusion Volume
           </label>
           <div className="flex border-2 border-slate-200 rounded-2xl bg-white focus-within:border-teal-500 transition-colors">
             <input
@@ -244,7 +251,7 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
         {/* Drop Factor Selector */}
         <div className="space-y-1.5">
           <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
-            Drop Factor (gtts / mL)
+            Drop Factor
           </label>
           <div className="flex border-2 border-slate-200 rounded-2xl bg-white focus-within:border-teal-500 transition-colors">
             <input

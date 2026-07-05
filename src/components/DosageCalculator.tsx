@@ -341,7 +341,7 @@ export default function DosageCalculator() {
 
         <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-3 flex items-center justify-center gap-1.5">
           <ShieldCheck className="w-3.5 h-3.5 text-teal-600 animate-pulse" />
-          CALCULATED RESULT (OFFLINE SECURE)
+          CALCULATED RESULT
         </div>
 
         {/* Large Volume Output */}
@@ -349,7 +349,7 @@ export default function DosageCalculator() {
           {H > 0 ? (calculatedVolume % 1 === 0 ? calculatedVolume : calculatedVolume.toFixed(3)) : '0.00'}
         </div>
         <div className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
-          {quantityUnit === 'mL' ? 'Milliliters (mL)' : quantityUnit}
+          {quantityUnit === 'mL' ? 'Milliliters' : quantityUnit}
         </div>
 
         {showFormula && (
@@ -383,7 +383,7 @@ export default function DosageCalculator() {
               </h4>
               <p className="text-[10px] text-slate-500 mt-0.5">
                 {activePreset && isDirty
-                  ? `Overwrite "${activePreset.name}" or keep it and save a new one.`
+                  ? `Overwrite "${activePreset.name}" or save a new one.`
                   : 'Save it as a quick-access card to skip typing next time.'}
               </p>
             </div>

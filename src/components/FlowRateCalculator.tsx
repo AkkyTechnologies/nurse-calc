@@ -72,7 +72,7 @@ export default function FlowRateCalculator({ onTransferToDrip }: FlowRateCalcula
           }`}
           id="btn-flow-rate-mode"
         >
-          Rate (mL/hr)
+          Rate
         </button>
         <button
           onClick={() => setCalcMode('duration')}
@@ -94,7 +94,7 @@ export default function FlowRateCalculator({ onTransferToDrip }: FlowRateCalcula
             {/* Input Volume */}
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
-                Volume to Infuse (mL)
+                Volume to Infuse
               </label>
               <div className="flex border-2 border-slate-200 rounded-2xl bg-white focus-within:border-teal-500 transition-colors">
                 <input
@@ -157,7 +157,7 @@ export default function FlowRateCalculator({ onTransferToDrip }: FlowRateCalcula
             {/* Input Volume */}
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
-                Volume to Infuse (mL)
+                Volume to Infuse
               </label>
               <div className="flex border-2 border-slate-200 rounded-2xl bg-white focus-within:border-teal-500 transition-colors">
                 <input
@@ -179,7 +179,7 @@ export default function FlowRateCalculator({ onTransferToDrip }: FlowRateCalcula
             {/* Target Flow Rate */}
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
-                Target Flow Rate (mL / Hour)
+                Target Flow Rate
               </label>
               <div className="flex border-2 border-slate-200 rounded-2xl bg-white focus-within:border-teal-500 transition-colors">
                 <input
@@ -243,11 +243,9 @@ export default function FlowRateCalculator({ onTransferToDrip }: FlowRateCalcula
 
         {calcMode === 'rate' ? (
           <div className="w-full">
-            <div className="text-6xl font-black text-teal-600 tabular-nums tracking-tight">
-              {calculatedRate > 0 ? calculatedRate.toFixed(1) : '0.0'}
-            </div>
-            <div className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
-              Milliliters per Hour (mL / hr)
+            <div className="text-6xl font-black text-teal-600 tabular-nums tracking-tight flex items-baseline justify-center gap-2">
+              <span>{calculatedRate > 0 ? calculatedRate.toFixed(1) : '0.0'}</span>
+              <span className="text-base font-bold text-slate-400 uppercase">mL/hr</span>
             </div>
 
             {showFormula && (

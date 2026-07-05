@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { CalculatorType } from './types';
 
 // Component imports
@@ -36,6 +36,12 @@ export default function App() {
 
   // Shared transfer state for Flow Rate -> Drip Rate
   const [transferData, setTransferData] = useState<{ volume: string; hours: string; minutes: string } | null>(null);
+
+  // Reset scroll to top whenever the active calculator changes.
+  const bodyRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (bodyRef.current) bodyRef.current.scrollTop = 0;
+  }, [activeTab]);
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
@@ -71,16 +77,16 @@ export default function App() {
             <img src="/nurse-calc-icon.svg" alt="Nurse Calc" className="w-7 h-7 rounded-[9px]" />
           </button>
           <h3 className="text-[13px] font-bold text-slate-900 tracking-tight truncate">
-            {activeTab === 'planner' && 'Dashboard Overview'}
-            {activeTab === 'dosage' && 'Dosage (Desired/Have)'}
-            {activeTab === 'drip-rate' && 'IV Drip Rate (gtts/min)'}
-            {activeTab === 'flow-rate' && 'IV Flow Rate (mL/hr)'}
+            {activeTab === 'planner' && 'Dashboard'}
+            {activeTab === 'dosage' && 'Dosage'}
+            {activeTab === 'drip-rate' && 'IV Drip Rate'}
+            {activeTab === 'flow-rate' && 'IV Flow Rate'}
             {activeTab === 'pediatric' && 'Pediatric Weight Dose'}
           </h3>
         </div>
 
         {/* Viewport Inner Body — fills whatever space is left in the fixed frame */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-5 bg-white">
+        <div ref={bodyRef} className="flex-1 min-h-0 overflow-y-auto p-5 bg-white">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -120,7 +126,7 @@ export default function App() {
                     <Compass className="w-8 h-8 text-teal-600 mx-auto mb-2 animate-bounce" />
                     <h4 className="font-bold text-slate-800 text-sm uppercase tracking-wider">Welcome to Nurse Calc</h4>
                     <p className="text-xs text-slate-500 mt-1 leading-relaxed font-semibold">
-                      A high-performance calculation suite with zero dependency on cellular networks. Pick a calculator from the tab bar below — next launch will reopen right where you left off.
+                      Your bedside companion for fast, accurate medication and IV math — dosage, drip rate, flow rate, and weight-based pediatric doses. Pick a calculator from the tab bar below.
                     </p>
                   </div>
 

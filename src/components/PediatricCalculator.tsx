@@ -109,7 +109,7 @@ export default function PediatricCalculator() {
       {/* Favorites: pediatric dosing guidelines */}
       <div>
         <div className="flex items-center justify-between mb-1.5 px-1">
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Favorites</span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Drug Favorites</span>
           <button
             type="button"
             onClick={() => {
@@ -138,132 +138,135 @@ export default function PediatricCalculator() {
       </div>
 
       {/* Main Inputs Form */}
-      <div className="bg-white border-2 border-slate-200 rounded-[24px] p-4 shadow-sm">
-        <div className="grid grid-cols-2 gap-3">
-          {/* Row 1: Patient Weight & Dosage Multiplier */}
-          <div className="space-y-1 col-span-1">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
-              Patient Weight
-            </label>
-            <div className="flex border-2 border-slate-200 rounded-xl bg-white focus-within:border-teal-500 transition-colors h-11">
-              <input
-                type="number"
-                inputMode="decimal"
-                pattern="[0-9]*"
-                placeholder="0.0"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-                className="w-full px-2.5 bg-transparent outline-none text-base font-bold font-mono"
-                id="pediatric-weight-input"
-              />
-              <div className="flex bg-slate-50 border-l border-slate-200 p-0.5 rounded-r-xl shrink-0 items-center">
-                <button
-                  type="button"
-                  onClick={() => setWeightUnit('kg')}
-                  className={`px-1.5 py-1 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
-                    weightUnit === 'kg' ? 'bg-white text-teal-600 shadow-xs border border-slate-200' : 'text-slate-500 hover:text-slate-700'
-                  }`}
-                >
-                  kg
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setWeightUnit('lb')}
-                  className={`px-1.5 py-1 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
-                    weightUnit === 'lb' ? 'bg-white text-teal-600 shadow-xs border border-slate-200' : 'text-slate-500 hover:text-slate-700'
-                  }`}
-                >
-                  lb
-                </button>
-              </div>
-            </div>
+      <div className="bg-white border-2 border-slate-200 rounded-[24px] p-4 shadow-sm space-y-3">
+        {/* Patient Weight */}
+        <div className="space-y-1">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
+            Patient Weight
+          </label>
+          <div className="flex border-2 border-slate-200 rounded-xl bg-white focus-within:border-teal-500 transition-colors h-11">
+            <input
+              type="number"
+              inputMode="decimal"
+              pattern="[0-9]*"
+              placeholder="0.0"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              className="w-full px-3 bg-transparent outline-none text-base font-bold font-mono"
+              id="pediatric-weight-input"
+            />
+            <select
+              value={weightUnit}
+              onChange={(e) => setWeightUnit(e.target.value as 'kg' | 'lb')}
+              className="px-3 bg-slate-50 border-l border-slate-200 rounded-r-xl font-bold text-slate-500 text-xs outline-none cursor-pointer hover:bg-slate-100 transition-colors shrink-0"
+            >
+              <option value="kg">kg</option>
+              <option value="lb">lb</option>
+            </select>
           </div>
-
-          <div className="space-y-1 col-span-1">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
-              Dosage Multiplier
-            </label>
-            <div className="flex border-2 border-slate-200 rounded-xl bg-white focus-within:border-teal-500 transition-colors h-11 items-center">
-              <input
-                type="number"
-                inputMode="decimal"
-                pattern="[0-9]*"
-                placeholder="10"
-                value={targetDoseMultiplier}
-                onChange={(e) => setTargetDoseMultiplier(e.target.value)}
-                className="w-full px-2.5 bg-transparent outline-none text-base font-bold font-mono"
-                id="pediatric-multiplier-input"
-              />
-              <span className="pr-2.5 text-xs font-bold text-slate-400 shrink-0">
-                mg/kg
-              </span>
-            </div>
-          </div>
-
-          {/* Row 2: Dosing Type & Max Safe Single Dose */}
-          <div className="space-y-1 col-span-1">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
-              Dosing Type
-            </label>
-            <div className="flex border-2 border-slate-200 rounded-xl bg-white focus-within:border-teal-500 transition-colors h-11">
-              <select
-                value={dosingType}
-                onChange={(e) => setDosingType(e.target.value as any)}
-                className="w-full px-2 py-1 bg-transparent outline-none text-xs font-bold text-slate-700 cursor-pointer"
-              >
-                <option value="dose">Per Dose</option>
-                <option value="day">Per Day (divided)</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="space-y-1 col-span-1">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
-              Max Safe Dose
-            </label>
-            <div className="flex border-2 border-slate-200 rounded-xl bg-white focus-within:border-teal-500 transition-colors h-11 items-center">
-              <input
-                type="number"
-                inputMode="decimal"
-                pattern="[0-9]*"
-                placeholder="1000"
-                value={maxAdultCap}
-                onChange={(e) => setMaxAdultCap(e.target.value)}
-                className="w-full px-2.5 bg-transparent outline-none text-base font-bold font-mono"
-                id="pediatric-max-cap-input"
-              />
-              <span className="pr-2.5 text-xs font-bold text-slate-400 shrink-0">
-                mg
-              </span>
-            </div>
-          </div>
-
-          {/* Row 3: Doses per Day (Only shown when Per Day (divided) is active) */}
-          {dosingType === 'day' && (
-            <div className="space-y-1 col-span-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
-                Doses per Day
-              </label>
-              <div className="flex border-2 border-slate-200 rounded-xl bg-white focus-within:border-teal-500 transition-colors h-11 items-center">
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  min="1"
-                  value={dividedBy}
-                  onChange={(e) => setDividedBy(e.target.value)}
-                  className="w-full px-2.5 bg-transparent outline-none text-base font-bold font-mono"
-                  id="pediatric-divided-input"
-                />
-                <span className="pr-2.5 text-xs font-bold text-slate-400 shrink-0">
-                  times
-                </span>
-              </div>
-            </div>
-          )}
         </div>
+
+        {/* Dosage Multiplier */}
+        <div className="space-y-1">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
+            Dosage Multiplier
+          </label>
+          <div className="flex border-2 border-slate-200 rounded-xl bg-white focus-within:border-teal-500 transition-colors h-11">
+            <input
+              type="number"
+              inputMode="decimal"
+              pattern="[0-9]*"
+              placeholder="10"
+              value={targetDoseMultiplier}
+              onChange={(e) => setTargetDoseMultiplier(e.target.value)}
+              className="w-full px-3 bg-transparent outline-none text-base font-bold font-mono"
+              id="pediatric-multiplier-input"
+            />
+            <span className="px-3 flex items-center bg-slate-50 border-l border-slate-200 rounded-r-xl font-bold text-slate-500 text-xs shrink-0">
+              mg/kg
+            </span>
+          </div>
+        </div>
+
+        {/* Dosing Type — segmented toggle, matches the kg/lb + Flow Rate mode style */}
+        <div className="space-y-1">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
+            Dosing Type
+          </label>
+          <div className="flex bg-slate-100 p-1 rounded-xl border-2 border-slate-200">
+            <button
+              type="button"
+              onClick={() => setDosingType('dose')}
+              className={`flex-1 text-center py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
+                dosingType === 'dose'
+                  ? 'bg-white text-teal-600 shadow-xs border border-slate-200'
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              Per Dose
+            </button>
+            <button
+              type="button"
+              onClick={() => setDosingType('day')}
+              className={`flex-1 text-center py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
+                dosingType === 'day'
+                  ? 'bg-white text-teal-600 shadow-xs border border-slate-200'
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              Per Day
+            </button>
+          </div>
+        </div>
+
+        {/* Max Safe Dose */}
+        <div className="space-y-1">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
+            Max Safe Dose (Adult Cap)
+          </label>
+          <div className="flex border-2 border-slate-200 rounded-xl bg-white focus-within:border-teal-500 transition-colors h-11">
+            <input
+              type="number"
+              inputMode="decimal"
+              pattern="[0-9]*"
+              placeholder="1000"
+              value={maxAdultCap}
+              onChange={(e) => setMaxAdultCap(e.target.value)}
+              className="w-full px-3 bg-transparent outline-none text-base font-bold font-mono"
+              id="pediatric-max-cap-input"
+            />
+            <span className="px-3 flex items-center bg-slate-50 border-l border-slate-200 rounded-r-xl font-bold text-slate-500 text-xs shrink-0">
+              mg
+            </span>
+          </div>
+        </div>
+
+        {/* Doses per Day (Only shown when Per Day is active) */}
+        {dosingType === 'day' && (
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
+              Doses per Day
+            </label>
+            <div className="flex border-2 border-slate-200 rounded-xl bg-white focus-within:border-teal-500 transition-colors h-11">
+              <input
+                type="number"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                min="1"
+                value={dividedBy}
+                onChange={(e) => setDividedBy(e.target.value)}
+                className="w-full px-3 bg-transparent outline-none text-base font-bold font-mono"
+                id="pediatric-divided-input"
+              />
+              <span className="px-3 flex items-center bg-slate-50 border-l border-slate-200 rounded-r-xl font-bold text-slate-500 text-xs shrink-0">
+                times
+              </span>
+            </div>
+          </div>
+        )}
+
         {weightUnit === 'lb' && W_input > 0 && (
-          <span className="text-[10px] text-slate-400 mt-2 block font-mono px-1">
+          <span className="text-[10px] text-slate-400 block font-mono px-1">
             Weight converted: {weightInKg.toFixed(2)} kg
           </span>
         )}
@@ -295,8 +298,8 @@ export default function PediatricCalculator() {
           <Info className="w-3.5 h-3.5" />
         </button>
 
-        <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-3 flex items-center justify-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-teal-600 animate-pulse" />
+        <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400 mb-3 flex items-center justify-center gap-1.5 whitespace-nowrap">
+          <ShieldCheck className="w-3.5 h-3.5 text-teal-600 animate-pulse shrink-0" />
           RECOMMENDED PEDIATRIC DOSE
         </div>
 
@@ -305,7 +308,7 @@ export default function PediatricCalculator() {
           {W_input > 0 ? finalSingleDose.toFixed(1) : '0.0'}
         </div>
         <div className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
-          Milligrams per Dose (mg / dose)
+          Milligrams per Dose
         </div>
 
         {dosingType === 'day' && W_input > 0 && (
@@ -355,7 +358,7 @@ export default function PediatricCalculator() {
               </h4>
               <p className="text-[10px] text-slate-500 mt-0.5">
                 {activeDrug && isDirty
-                  ? `Overwrite "${activeDrug.name}" or keep it and save a new one.`
+                  ? `Overwrite "${activeDrug.name}" or save a new one.`
                   : 'Add to Favorites for one-tap reuse.'}
               </p>
             </div>
