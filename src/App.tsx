@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { CalculatorType } from './types';
 
 // Component imports
@@ -16,10 +17,15 @@ import SplashScreen from './components/SplashScreen';
 import RuthEasterEgg from './components/RuthEasterEgg';
 
 // Icon imports
-import { Compass, WifiOff } from 'lucide-react';
+import { Compass, WifiOff, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 const LAST_TAB_KEY = 'nurse_calc_last_tab';
+
+// Running as a real iOS app (Capacitor) vs. the browser preview. Native gets
+// the real device's own status bar and home indicator, so the simulated
+// phone bezel/notch/home-indicator chrome below only renders in the browser.
+const isNative = Capacitor.isNativePlatform();
 
 export default function App() {
   // Navigation active tab — resumes whichever calculator was open last launch.
@@ -110,30 +116,45 @@ export default function App() {
   }, [activeTab]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-      {/* Simulated iPhone Device Wrapper — this is the shipped app UI.
+    <div className={isNative ? 'h-[100dvh] w-screen bg-white overflow-hidden' : 'min-h-screen bg-slate-50 flex items-center justify-center p-6'}>
+      {/* Simulated iPhone Device Wrapper — this is the shipped app UI in the browser preview.
           Fixed at 393x852: the iPhone 16's logical point resolution, Apple's
           current standard (non-Pro) model — the realistic device for a nurse's
-          budget, not a Pro Max. Size never changes with the browser viewport. */}
-      <div className="w-[393px] h-[852px] bg-white relative border-[12px] border-slate-950 rounded-[56px] shadow-2xl overflow-hidden flex flex-col shrink-0">
-        {/* iPhone Notch & Status Bar */}
-        <div className={`shrink-0 text-white px-6 pt-3 pb-2 flex justify-between items-center text-[10px] font-semibold tracking-tight z-30 relative select-none transition-colors duration-700 ${eggActive ? 'bg-[#4c1d95]' : 'bg-slate-950'}`}>
-          <span>07:57 AM</span>
+          budget, not a Pro Max. Size never changes with the browser viewport.
+          On native (Capacitor), it fills the real device screen edge-to-edge instead —
+          the phone bezel and fake status bar below are a browser-only mockup device. */}
+      <div
+        className={
+          isNative
+            ? 'w-full h-full bg-white relative overflow-hidden flex flex-col'
+            : 'w-[393px] h-[852px] bg-white relative border-[12px] border-slate-950 rounded-[56px] shadow-2xl overflow-hidden flex flex-col shrink-0'
+        }
+        style={isNative ? { paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' } : undefined}
+      >
+        {/* iPhone Notch & Status Bar — browser preview only; native shows the real device status bar */}
+        {!isNative && (
+          <div className={`shrink-0 text-white px-6 pt-3 pb-2 flex justify-between items-center text-[10px] font-semibold tracking-tight z-30 relative select-none transition-colors duration-700 ${eggActive ? 'bg-[#4c1d95]' : 'bg-slate-950'}`}>
+            <span>07:57 AM</span>
 
-          {/* Dynamic Island Pill */}
-          <div className="w-24 h-4.5 bg-black rounded-full absolute left-1/2 -translate-x-1/2 top-2" />
+            {/* Dynamic Island Pill */}
+            <div className="w-24 h-4.5 bg-black rounded-full absolute left-1/2 -translate-x-1/2 top-2" />
 
-          <div className="flex items-center gap-1.5">
-            <span className={`text-[9px] font-bold tracking-widest font-mono transition-colors duration-700 ${eggActive ? 'text-white' : 'text-teal-400'}`}>100% LOCAL</span>
-            <WifiOff className="w-3 h-3 text-white" />
-            <div className="w-5 h-2.5 border border-white/60 rounded-sm p-0.5 flex items-center">
-              <div className={`w-full h-full rounded-2xs transition-colors duration-700 ${eggActive ? 'bg-white' : 'bg-teal-400'}`} />
+            <div className="flex items-center gap-1.5">
+              <span className={`text-[9px] font-bold tracking-widest font-mono transition-colors duration-700 ${eggActive ? 'text-white' : 'text-teal-400'}`}>100% LOCAL</span>
+              <WifiOff className="w-3 h-3 text-white" />
+              <div className="w-5 h-2.5 border border-white/60 rounded-sm p-0.5 flex items-center">
+                <div className={`w-full h-full rounded-2xs transition-colors duration-700 ${eggActive ? 'bg-white' : 'bg-teal-400'}`} />
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Title Bar — compact single row; tap the app icon to return to the dashboard */}
-        <div className={`shrink-0 px-4 py-2.5 border-b-2 flex items-center gap-2.5 transition-colors duration-700 ${eggActive ? 'bg-[#f6f4ff] border-purple-100' : 'bg-white border-slate-100'}`}>
+        {/* Title Bar — compact single row; tap the app icon to return to the dashboard.
+            Top padding clears the real notch/Dynamic Island on native. */}
+        <div
+          className={`shrink-0 px-4 pb-2.5 border-b-2 flex items-center gap-2.5 transition-colors duration-700 ${eggActive ? 'bg-[#f6f4ff] border-purple-100' : 'bg-white border-slate-100'}`}
+          style={{ paddingTop: isNative ? 'calc(env(safe-area-inset-top) + 10px)' : '10px' }}
+        >
           <button
             type="button"
             onClick={handleIconClick}
@@ -246,16 +267,34 @@ export default function App() {
           <RuthEasterEgg active={eggActive} reveal={eggReveal} onClose={closeEgg} />
         </div>
 
-        {/* Bottom Tab Bar: always visible, all 4 calculators, unambiguous active state */}
-        <BottomTabBar activeTab={activeTab} onChange={setActiveTab} />
+        {/* Bottom Tab Bar + Return-to-Dashboard control, grouped as one footer so the
+            tab icons sit naturally at the bottom instead of floating above a second bar.
+            On native, the control lives inside the reserved home-indicator safe area
+            (its own height, no added row) so it doesn't add extra height below the tabs;
+            in the browser preview it's a separate row mimicking the iPhone home indicator
+            as part of the phone mockup. */}
+        <div className={`shrink-0 relative transition-colors duration-700 ${eggActive ? 'bg-[#f6f4ff]' : 'bg-white'}`}>
+          <BottomTabBar activeTab={activeTab} onChange={setActiveTab} />
 
-        {/* iPhone Home Screen Indicator Bar */}
-        <div className={`shrink-0 py-3.5 border-t flex justify-center items-center select-none z-30 relative transition-colors duration-700 ${eggActive ? 'bg-[#f6f4ff] border-purple-100' : 'bg-white border-slate-100'}`}>
-          <button
-            onClick={() => setActiveTab('planner')}
-            className={`w-28 h-1 rounded-full transition-colors cursor-pointer ${eggActive ? 'bg-purple-300' : 'bg-slate-300 hover:bg-slate-500'}`}
-            title="Return to Dashboard Overview"
-          />
+          {isNative ? (
+            <div className="flex justify-center items-center" style={{ height: 'env(safe-area-inset-bottom)' }}>
+              <button
+                onClick={() => setActiveTab('planner')}
+                className="flex items-center justify-center w-8 h-8 text-slate-400 active:scale-90 transition-all cursor-pointer"
+                title="Return to Dashboard Overview"
+              >
+                <ChevronUp className="w-3.5 h-3.5" strokeWidth={2.5} />
+              </button>
+            </div>
+          ) : (
+            <div className={`py-3.5 border-t flex justify-center items-center select-none z-30 relative transition-colors duration-700 ${eggActive ? 'border-purple-100' : 'border-slate-100'}`}>
+              <button
+                onClick={() => setActiveTab('planner')}
+                className={`w-28 h-1 rounded-full transition-colors cursor-pointer ${eggActive ? 'bg-purple-300' : 'bg-slate-300 hover:bg-slate-500'}`}
+                title="Return to Dashboard Overview"
+              />
+            </div>
+          )}
         </div>
 
         {/* Launch splash overlay */}

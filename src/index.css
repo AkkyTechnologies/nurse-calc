@@ -25,6 +25,14 @@
   display: none;
 }
 
+/* App icons are tap targets (e.g. long-press for the Ruth easter egg), not
+   photos — suppress WKWebView's native long-press "Save Image/Share" callout. */
+img {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 /* Hide native number-input spinners — they reserve space inside the field and
    clip digits in narrow inputs; units live in the suffix chips instead. */
 input[type='number'] {
