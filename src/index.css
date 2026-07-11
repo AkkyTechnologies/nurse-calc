@@ -1,4 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+/* Self-hosted fonts (no network request, works fully offline) */
+@import "@fontsource/inter/latin-400.css";
+@import "@fontsource/inter/latin-500.css";
+@import "@fontsource/inter/latin-600.css";
+@import "@fontsource/inter/latin-700.css";
+@import "@fontsource/jetbrains-mono/latin-400.css";
+@import "@fontsource/jetbrains-mono/latin-500.css";
 @import "tailwindcss";
 
 @theme {
@@ -6,11 +12,30 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+/* Wordmark display face. Replace the fallback stack with Lustra Text if
+   available (self-host it the same way as the @fontsource fonts above). */
+:root {
+  --font-brand: "Lustra Text", "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
 .no-scrollbar {
   scrollbar-width: none;
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* Hide native number-input spinners — they reserve space inside the field and
+   clip digits in narrow inputs; units live in the suffix chips instead. */
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
 }
 
 /* Launch splash: the product icon morphs from grayscale into full color. */
@@ -26,5 +51,26 @@
   100% {
     filter: none;
     transform: scale(1);
+  }
+}
+
+/* Splash wordmark + signature entrance */
+@keyframes splash-rise {
+  0% {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Optional — respect reduced motion (base state is the visible end state) */
+@media (prefers-reduced-motion: reduce) {
+  .animate-\[splash-morph_1\.25s_cubic-bezier\(0\.22\,1\,0\.36\,1\)_forwards\],
+  .animate-\[splash-rise_0\.5s_ease_0\.35s_both\],
+  .animate-\[splash-rise_0\.5s_ease_0\.6s_both\] {
+    animation: none !important;
   }
 }

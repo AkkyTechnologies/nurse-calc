@@ -15,13 +15,6 @@ Built using **React 19 (TypeScript)**, **Vite**, **Tailwind CSS v4**, `lucide-re
 - **Favorites** (Dosage & Pediatric calculators) — save, rename, update, and delete frequently-used drug/dose combinations and dosing guidelines for one-tap reuse.
 - **100% offline** — every calculation runs on-device; no patient data is transmitted anywhere.
 
-## Navigation & UX
-
-- **Launch splash** — the Nurse Calc product icon morphs from grayscale into full teal on every launch (~1.4s), tap anywhere to skip.
-- **Bottom tab bar** — all 4 calculators are always visible (no scrolling), with a clear active-state indicator, matching native iOS navigation conventions.
-- **Auto-resume** — the app reopens on whichever calculator was open last, rather than always landing on the dashboard.
-- **Favorites carousel** — a fixed-height, center-emphasis horizontal snap-scroll picker. Tapping any visible card (center or side) loads it immediately. An "Edit" toggle reveals per-card rename and delete. Height stays constant no matter how many favorites are saved, so it never crowds out the calculator below it.
-
 ## Feature status
 
 Shipped:
@@ -37,14 +30,13 @@ Planned (not in the shipped UI):
 
 Open points:
 
-- Fonts (Inter, JetBrains Mono) are currently loaded from Google Fonts — self-hosting them would make the "100% offline" claim literally true even with no network at first load.
 - No native iOS/Android packaging yet (no Capacitor dependency or `ios/`/`android/` project); the app currently ships as a web app only.
 
 ## Brand assets
 
 - **Nurse Calc app icon** — `assets/nurse-calc-icon.svg`, the **product** mark (a measured medication droplet cradling a clinical care cross, teal). This is what's used in the launch splash.
 - Akky is the parent company. Its corporate mark is intentionally **not** used inside the product UI or splash — product surfaces stay teal-only; reach for the Akky logo only in company/marketing contexts, not calculator screens.
-- Body/UI type is **Inter**; numerics (every dose, result, and equation) are set in **JetBrains Mono** for a deliberate safety signal. Both are loaded from Google Fonts.
+- Body/UI type is **Inter**; numerics (every dose, result, and equation) are set in **JetBrains Mono** for a deliberate safety signal. Both are self-hosted via `@fontsource` (no Google Fonts request, even on first load with no network).
 
 ## Running locally
 

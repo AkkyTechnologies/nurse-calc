@@ -183,7 +183,7 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
               placeholder="0"
               value={volume}
               onChange={(e) => setVolume(e.target.value)}
-              className="w-full p-4 bg-transparent outline-none text-xl font-bold font-mono"
+              className="w-full min-w-0 p-4 bg-transparent outline-none text-xl font-bold font-mono"
               id="drip-volume-input"
             />
             <span className="px-4 bg-slate-50 border-l border-slate-200 rounded-r-2xl font-bold text-slate-500 text-sm flex items-center shrink-0">
@@ -212,7 +212,7 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
         {/* Infusion Duration (Hours & Minutes) */}
         <div className="space-y-1.5">
           <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
-            Infusion Time Duration (Hours & Mins)
+            Infusion Duration
           </label>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex border-2 border-slate-200 rounded-2xl bg-white focus-within:border-teal-500 transition-colors">
@@ -223,10 +223,10 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
                 placeholder="0"
                 value={hours}
                 onChange={(e) => setHours(e.target.value)}
-                className="w-full p-4 bg-transparent outline-none text-xl font-bold font-mono"
+                className="w-full min-w-0 py-4 px-3 bg-transparent outline-none text-xl font-bold font-mono"
                 id="drip-hours-input"
               />
-              <span className="px-3 bg-slate-50 border-l border-slate-200 rounded-r-2xl font-bold text-slate-500 text-xs flex items-center shrink-0">
+              <span className="px-4 bg-slate-50 border-l border-slate-200 rounded-r-2xl font-bold text-slate-500 text-sm flex items-center shrink-0">
                 hrs
               </span>
             </div>
@@ -238,10 +238,10 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
                 placeholder="0"
                 value={minutes}
                 onChange={(e) => setMinutes(e.target.value)}
-                className="w-full p-4 bg-transparent outline-none text-xl font-bold font-mono"
+                className="w-full min-w-0 py-4 px-3 bg-transparent outline-none text-xl font-bold font-mono"
                 id="drip-minutes-input"
               />
-              <span className="px-3 bg-slate-50 border-l border-slate-200 rounded-r-2xl font-bold text-slate-500 text-xs flex items-center shrink-0">
+              <span className="px-4 bg-slate-50 border-l border-slate-200 rounded-r-2xl font-bold text-slate-500 text-sm flex items-center shrink-0">
                 mins
               </span>
             </div>
@@ -261,7 +261,7 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
               placeholder="20"
               value={dropFactor}
               onChange={(e) => setDropFactor(e.target.value)}
-              className="w-full p-4 bg-transparent outline-none text-xl font-bold font-mono"
+              className="w-full min-w-0 p-4 bg-transparent outline-none text-xl font-bold font-mono"
               id="drip-factor-input"
             />
             <span className="px-4 bg-slate-50 border-l border-slate-200 rounded-r-2xl font-bold text-slate-500 text-sm flex items-center shrink-0">

@@ -138,13 +138,13 @@ export default function PediatricCalculator() {
       </div>
 
       {/* Main Inputs Form */}
-      <div className="bg-white border-2 border-slate-200 rounded-[24px] p-4 shadow-sm space-y-3">
+      <div className="bg-white border-2 border-slate-200 rounded-[24px] p-6 shadow-sm space-y-5">
         {/* Patient Weight */}
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
             Patient Weight
           </label>
-          <div className="flex border-2 border-slate-200 rounded-xl bg-white focus-within:border-teal-500 transition-colors h-11">
+          <div className="flex border-2 border-slate-200 rounded-2xl bg-white focus-within:border-teal-500 transition-colors">
             <input
               type="number"
               inputMode="decimal"
@@ -152,13 +152,13 @@ export default function PediatricCalculator() {
               placeholder="0.0"
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
-              className="w-full px-3 bg-transparent outline-none text-base font-bold font-mono"
+              className="w-full p-4 bg-transparent outline-none text-xl font-bold font-mono"
               id="pediatric-weight-input"
             />
             <select
               value={weightUnit}
               onChange={(e) => setWeightUnit(e.target.value as 'kg' | 'lb')}
-              className="px-3 bg-slate-50 border-l border-slate-200 rounded-r-xl font-bold text-slate-500 text-xs outline-none cursor-pointer hover:bg-slate-100 transition-colors shrink-0"
+              className="px-4 bg-slate-50 border-l border-slate-200 rounded-r-2xl font-bold text-slate-500 text-sm outline-none cursor-pointer hover:bg-slate-100 transition-colors shrink-0"
             >
               <option value="kg">kg</option>
               <option value="lb">lb</option>
@@ -167,11 +167,11 @@ export default function PediatricCalculator() {
         </div>
 
         {/* Dosage Multiplier */}
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
             Dosage Multiplier
           </label>
-          <div className="flex border-2 border-slate-200 rounded-xl bg-white focus-within:border-teal-500 transition-colors h-11">
+          <div className="flex border-2 border-slate-200 rounded-2xl bg-white focus-within:border-teal-500 transition-colors">
             <input
               type="number"
               inputMode="decimal"
@@ -179,28 +179,28 @@ export default function PediatricCalculator() {
               placeholder="10"
               value={targetDoseMultiplier}
               onChange={(e) => setTargetDoseMultiplier(e.target.value)}
-              className="w-full px-3 bg-transparent outline-none text-base font-bold font-mono"
+              className="w-full p-4 bg-transparent outline-none text-xl font-bold font-mono"
               id="pediatric-multiplier-input"
             />
-            <span className="px-3 flex items-center bg-slate-50 border-l border-slate-200 rounded-r-xl font-bold text-slate-500 text-xs shrink-0">
+            <span className="px-4 bg-slate-50 border-l border-slate-200 rounded-r-2xl font-bold text-slate-500 text-sm flex items-center shrink-0">
               mg/kg
             </span>
           </div>
         </div>
 
-        {/* Dosing Type — segmented toggle, matches the kg/lb + Flow Rate mode style */}
-        <div className="space-y-1">
+        {/* Dosing Type — segmented toggle, same style as the Flow Rate mode switch */}
+        <div className="space-y-1.5">
           <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
             Dosing Type
           </label>
-          <div className="flex bg-slate-100 p-1 rounded-xl border-2 border-slate-200">
+          <div className="flex bg-slate-100 p-1.5 rounded-2xl border-2 border-slate-200">
             <button
               type="button"
               onClick={() => setDosingType('dose')}
-              className={`flex-1 text-center py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
+              className={`flex-1 text-center py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer ${
                 dosingType === 'dose'
-                  ? 'bg-white text-teal-600 shadow-xs border border-slate-200'
-                  : 'text-slate-500 hover:text-slate-700'
+                  ? 'bg-teal-600 text-white shadow-sm'
+                  : 'text-slate-500 hover:text-slate-900'
               }`}
             >
               Per Dose
@@ -208,10 +208,10 @@ export default function PediatricCalculator() {
             <button
               type="button"
               onClick={() => setDosingType('day')}
-              className={`flex-1 text-center py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
+              className={`flex-1 text-center py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer ${
                 dosingType === 'day'
-                  ? 'bg-white text-teal-600 shadow-xs border border-slate-200'
-                  : 'text-slate-500 hover:text-slate-700'
+                  ? 'bg-teal-600 text-white shadow-sm'
+                  : 'text-slate-500 hover:text-slate-900'
               }`}
             >
               Per Day
@@ -220,11 +220,11 @@ export default function PediatricCalculator() {
         </div>
 
         {/* Max Safe Dose */}
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
             Max Safe Dose (Adult Cap)
           </label>
-          <div className="flex border-2 border-slate-200 rounded-xl bg-white focus-within:border-teal-500 transition-colors h-11">
+          <div className="flex border-2 border-slate-200 rounded-2xl bg-white focus-within:border-teal-500 transition-colors">
             <input
               type="number"
               inputMode="decimal"
@@ -232,10 +232,10 @@ export default function PediatricCalculator() {
               placeholder="1000"
               value={maxAdultCap}
               onChange={(e) => setMaxAdultCap(e.target.value)}
-              className="w-full px-3 bg-transparent outline-none text-base font-bold font-mono"
+              className="w-full p-4 bg-transparent outline-none text-xl font-bold font-mono"
               id="pediatric-max-cap-input"
             />
-            <span className="px-3 flex items-center bg-slate-50 border-l border-slate-200 rounded-r-xl font-bold text-slate-500 text-xs shrink-0">
+            <span className="px-4 bg-slate-50 border-l border-slate-200 rounded-r-2xl font-bold text-slate-500 text-sm flex items-center shrink-0">
               mg
             </span>
           </div>
@@ -243,11 +243,11 @@ export default function PediatricCalculator() {
 
         {/* Doses per Day (Only shown when Per Day is active) */}
         {dosingType === 'day' && (
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
               Doses per Day
             </label>
-            <div className="flex border-2 border-slate-200 rounded-xl bg-white focus-within:border-teal-500 transition-colors h-11">
+            <div className="flex border-2 border-slate-200 rounded-2xl bg-white focus-within:border-teal-500 transition-colors">
               <input
                 type="number"
                 inputMode="numeric"
@@ -255,10 +255,10 @@ export default function PediatricCalculator() {
                 min="1"
                 value={dividedBy}
                 onChange={(e) => setDividedBy(e.target.value)}
-                className="w-full px-3 bg-transparent outline-none text-base font-bold font-mono"
+                className="w-full p-4 bg-transparent outline-none text-xl font-bold font-mono"
                 id="pediatric-divided-input"
               />
-              <span className="px-3 flex items-center bg-slate-50 border-l border-slate-200 rounded-r-xl font-bold text-slate-500 text-xs shrink-0">
+              <span className="px-4 bg-slate-50 border-l border-slate-200 rounded-r-2xl font-bold text-slate-500 text-sm flex items-center shrink-0">
                 times
               </span>
             </div>
