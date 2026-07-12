@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { MedicationPreset } from '../types';
 import { INITIAL_PRESETS } from '../presetsData';
-import { Save, ShieldCheck, Info, Plus } from 'lucide-react';
+import { Save, ShieldCheck, Info, Plus, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import PresetCarousel from './PresetCarousel';
 import FavoriteNameForm from './FavoriteNameForm';
 import { useFavorites } from '../hooks/useFavorites';
+import { formatDose } from '../utils/formatDose';
 
 export default function DosageCalculator() {
   const {
@@ -55,25 +56,25 @@ export default function DosageCalculator() {
           conversionFactor = 0.001;
           const convertedDose = dVal * conversionFactor;
           const finalVol = (convertedDose / hVal) * (parseFloat(quantity) || 1);
-          possibleResult = `Auto-converted Desired Dose: ${convertedDose} mg. Volume: ${finalVol.toFixed(3)} ${quantityUnit}`;
+          possibleResult = `Auto-converted Desired Dose: ${convertedDose} mg. Volume: ${formatDose(finalVol, 3)} ${quantityUnit}`;
         } else if (desiredUnit === 'mg' && haveUnit === 'mcg') {
           // mg to mcg
           conversionFactor = 1000;
           const convertedDose = dVal * conversionFactor;
           const finalVol = (convertedDose / hVal) * (parseFloat(quantity) || 1);
-          possibleResult = `Auto-converted Desired Dose: ${convertedDose} mcg. Volume: ${finalVol.toFixed(3)} ${quantityUnit}`;
+          possibleResult = `Auto-converted Desired Dose: ${convertedDose} mcg. Volume: ${formatDose(finalVol, 3)} ${quantityUnit}`;
         } else if (desiredUnit === 'mg' && haveUnit === 'g') {
           // mg to g
           conversionFactor = 0.001;
           const convertedDose = dVal * conversionFactor;
           const finalVol = (convertedDose / hVal) * (parseFloat(quantity) || 1);
-          possibleResult = `Auto-converted Desired Dose: ${convertedDose} g. Volume: ${finalVol.toFixed(3)} ${quantityUnit}`;
+          possibleResult = `Auto-converted Desired Dose: ${convertedDose} g. Volume: ${formatDose(finalVol, 3)} ${quantityUnit}`;
         } else if (desiredUnit === 'g' && haveUnit === 'mg') {
           // g to mg
           conversionFactor = 1000;
           const convertedDose = dVal * conversionFactor;
           const finalVol = (convertedDose / hVal) * (parseFloat(quantity) || 1);
-          possibleResult = `Auto-converted Desired Dose: ${convertedDose} mg. Volume: ${finalVol.toFixed(3)} ${quantityUnit}`;
+          possibleResult = `Auto-converted Desired Dose: ${convertedDose} mg. Volume: ${formatDose(finalVol, 3)} ${quantityUnit}`;
         }
 
         if (possibleResult) {
@@ -346,7 +347,7 @@ export default function DosageCalculator() {
 
         {/* Large Volume Output */}
         <div className="text-6xl font-black text-teal-600 tabular-nums tracking-tight">
-          {H > 0 ? (calculatedVolume % 1 === 0 ? calculatedVolume : calculatedVolume.toFixed(3)) : '0.00'}
+          {H > 0 ? formatDose(calculatedVolume, 3) : '0'}
         </div>
         <div className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
           {quantityUnit === 'mL' ? 'Milliliters' : quantityUnit}
@@ -376,39 +377,53 @@ export default function DosageCalculator() {
       {/* Save / Update / Rename Favorite */}
       <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {formMode === null ? (
-          <>
-            <div className="flex-1">
-              <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                {activePreset && isDirty ? 'Update this favorite?' : 'Frequently use this dose?'}
-              </h4>
-              <p className="text-[10px] text-slate-500 mt-0.5">
-                {activePreset && isDirty
-                  ? `Overwrite "${activePreset.name}" or save a new one.`
-                  : 'Save it as a quick-access card to skip typing next time.'}
-              </p>
+          activePreset && !isDirty ? (
+            <div className="flex items-center gap-2.5 w-full">
+              <span className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-teal-50 text-teal-600">
+                <Check className="w-4 h-4" strokeWidth={2.75} />
+              </span>
+              <div className="flex-1">
+                <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Matches saved favorite</h4>
+                <p className="text-[10px] text-slate-500 mt-0.5">
+                  "{activePreset.name}" is unchanged — rename or delete it via Edit above.
+                </p>
+              </div>
             </div>
-            <div className="flex gap-2 shrink-0">
-              {activePreset && isDirty && (
+          ) : (
+            <>
+              <div className="flex-1">
+                <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  {activePreset && isDirty ? 'Update this favorite?' : 'Frequently use this dose?'}
+                </h4>
+                <p className="text-[10px] text-slate-500 mt-0.5">
+                  {activePreset && isDirty
+                    ? `Overwrite "${activePreset.name}" or save a new one.`
+                    : 'Save it as a quick-access card to skip typing next time.'}
+                </p>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                {activePreset && isDirty && (
+                  <button
+                    onClick={handleUpdateFavorite}
+                    className="bg-teal-600 hover:bg-teal-700 text-white text-xs px-4 py-2.5 rounded-xl font-bold uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <Save className="w-3.5 h-3.5" /> Update
+                  </button>
+                )}
                 <button
-                  onClick={handleUpdateFavorite}
-                  className="bg-teal-600 hover:bg-teal-700 text-white text-xs px-4 py-2.5 rounded-xl font-bold uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-1.5"
+                  onClick={() => setFormMode('add')}
+                  className={`text-xs px-4 py-2.5 rounded-xl font-bold uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-1.5 ${
+                    activePreset && isDirty
+                      ? 'bg-white border-2 border-slate-200 text-slate-700 hover:border-teal-500'
+                      : 'bg-teal-600 hover:bg-teal-700 text-white'
+                  }`}
                 >
-                  <Save className="w-3.5 h-3.5" /> Update
+                  {activePreset && isDirty ? <Plus className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
+                  {activePreset && isDirty ? 'Add New' : 'Save Drug Preset'}
                 </button>
-              )}
-              <button
-                onClick={() => setFormMode('add')}
-                className={`text-xs px-4 py-2.5 rounded-xl font-bold uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-1.5 ${
-                  activePreset && isDirty
-                    ? 'bg-white border-2 border-slate-200 text-slate-700 hover:border-teal-500'
-                    : 'bg-teal-600 hover:bg-teal-700 text-white'
-                }`}
-              >
-                {activePreset && isDirty ? <Plus className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
-                {activePreset && isDirty ? 'Add New' : 'Save Drug Preset'}
-              </button>
-            </div>
-          </>
+              </div>
+            </>
+          )
         ) : formMode === 'add' ? (
           <FavoriteNameForm
             title="Save Current Concentration"

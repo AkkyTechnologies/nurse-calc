@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShieldCheck, Info, AlertTriangle, Droplet } from 'lucide-react';
 import { motion } from 'motion/react';
+import { formatDose } from '../utils/formatDose';
 
 interface FlowRateCalculatorProps {
   onTransferToDrip?: (volume: string, hours: string, minutes: string) => void;
@@ -206,7 +207,7 @@ export default function FlowRateCalculator({ onTransferToDrip }: FlowRateCalcula
         <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs flex items-start gap-2 leading-relaxed">
           <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600 animate-pulse" />
           <span>
-            <strong>Safety Warning:</strong> {calculatedRate.toFixed(1)} mL/hr exceeds standard volumetric infusion pump limits (standard max: 999 mL/hr). Please double-check catheter gauge and medical orders.
+            <strong>Safety Warning:</strong> {formatDose(calculatedRate, 1)} mL/hr exceeds standard volumetric infusion pump limits (standard max: 999 mL/hr). Please double-check catheter gauge and medical orders.
           </span>
         </div>
       )}
@@ -215,7 +216,7 @@ export default function FlowRateCalculator({ onTransferToDrip }: FlowRateCalcula
         <div className="p-3.5 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-xs flex items-start gap-2 leading-relaxed">
           <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
           <span>
-            <strong>Note:</strong> Flow rate of {calculatedRate.toFixed(1)} mL/hr is very slow. Verify if microbore tubing or secondary line syringe infusion is required.
+            <strong>Note:</strong> Flow rate of {formatDose(calculatedRate, 1)} mL/hr is very slow. Verify if microbore tubing or secondary line syringe infusion is required.
           </span>
         </div>
       )}
@@ -244,7 +245,7 @@ export default function FlowRateCalculator({ onTransferToDrip }: FlowRateCalcula
         {calcMode === 'rate' ? (
           <div className="w-full">
             <div className="text-6xl font-black text-teal-600 tabular-nums tracking-tight flex items-baseline justify-center gap-2">
-              <span>{calculatedRate > 0 ? calculatedRate.toFixed(1) : '0.0'}</span>
+              <span>{calculatedRate > 0 ? formatDose(calculatedRate, 1) : '0'}</span>
               <span className="text-base font-bold text-slate-400 uppercase">mL/hr</span>
             </div>
 
@@ -257,7 +258,7 @@ export default function FlowRateCalculator({ onTransferToDrip }: FlowRateCalcula
                 {calculatedRate > 0 && (
                   <div className="flex items-center justify-between text-[11px] font-bold text-slate-400">
                     <span className="uppercase tracking-wider">EQUATION</span>
-                    <span className="text-slate-800 font-mono">{V} mL / {totalHours.toFixed(2)} hrs</span>
+                    <span className="text-slate-800 font-mono">{V} mL / {formatDose(totalHours, 2)} hrs</span>
                   </div>
                 )}
               </div>

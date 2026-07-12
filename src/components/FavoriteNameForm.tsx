@@ -52,7 +52,7 @@ export default function FavoriteNameForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="flex-1 px-4 py-2.5 text-xs font-semibold border-2 border-slate-200 rounded-xl bg-white focus:outline-teal-600"
+          className="flex-1 px-4 py-2.5 text-base font-semibold border-2 border-slate-200 rounded-xl bg-white focus:outline-teal-600"
         />
         <button
           type="submit"

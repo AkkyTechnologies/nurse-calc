@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Info, AlertTriangle, Save, Plus } from 'lucide-react';
+import { ShieldCheck, Info, AlertTriangle, Save, Plus, Check } from 'lucide-react';
 import { motion } from 'motion/react';
 import { PediatricPreset } from '../types';
 import { INITIAL_PEDIATRIC_PRESETS } from '../presetsData';
 import { useFavorites } from '../hooks/useFavorites';
 import PresetCarousel from './PresetCarousel';
 import FavoriteNameForm from './FavoriteNameForm';
+import { formatDose } from '../utils/formatDose';
 
 export default function PediatricCalculator() {
   const {
@@ -267,7 +268,7 @@ export default function PediatricCalculator() {
 
         {weightUnit === 'lb' && W_input > 0 && (
           <span className="text-[10px] text-slate-400 block font-mono px-1">
-            Weight converted: {weightInKg.toFixed(2)} kg
+            Weight converted: {formatDose(weightInKg, 2)} kg
           </span>
         )}
       </div>
@@ -305,7 +306,7 @@ export default function PediatricCalculator() {
 
         {/* Dose Output */}
         <div className="text-6xl font-black text-teal-600 tabular-nums tracking-tight">
-          {W_input > 0 ? finalSingleDose.toFixed(1) : '0.0'}
+          {W_input > 0 ? formatDose(finalSingleDose, 1) : '0'}
         </div>
         <div className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
           Milligrams per Dose
@@ -313,7 +314,7 @@ export default function PediatricCalculator() {
 
         {dosingType === 'day' && W_input > 0 && (
           <p className="text-[10px] text-slate-500 font-mono mt-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100">
-            Total Daily Requirement: {totalCalculatedDose.toFixed(1)} mg/day (divided into {DIV} doses).
+            Total Daily Requirement: {formatDose(totalCalculatedDose, 1)} mg/day (divided into {DIV} doses).
           </p>
         )}
 
@@ -331,9 +332,9 @@ export default function PediatricCalculator() {
                 <span className="uppercase tracking-wider">EQUATION</span>
                 <span className="text-slate-800 font-mono">
                   {dosingType === 'day' ? (
-                    <>({weightInKg.toFixed(2)} kg × {DM} mg/kg/day) / {DIV}</>
+                    <>({formatDose(weightInKg, 2)} kg × {DM} mg/kg/day) / {DIV}</>
                   ) : (
-                    <>{weightInKg.toFixed(2)} kg × {DM} mg/kg</>
+                    <>{formatDose(weightInKg, 2)} kg × {DM} mg/kg</>
                   )}
                 </span>
               </div>
@@ -351,39 +352,53 @@ export default function PediatricCalculator() {
       {/* Save / Update / Rename Favorite */}
       <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {formMode === null ? (
-          <>
-            <div className="flex-1">
-              <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                {activeDrug && isDirty ? 'Update this favorite?' : 'Save this dosing guideline?'}
-              </h4>
-              <p className="text-[10px] text-slate-500 mt-0.5">
-                {activeDrug && isDirty
-                  ? `Overwrite "${activeDrug.name}" or save a new one.`
-                  : 'Add to Favorites for one-tap reuse.'}
-              </p>
+          activeDrug && !isDirty ? (
+            <div className="flex items-center gap-2.5 w-full">
+              <span className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-teal-50 text-teal-600">
+                <Check className="w-4 h-4" strokeWidth={2.75} />
+              </span>
+              <div className="flex-1">
+                <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Matches saved favorite</h4>
+                <p className="text-[10px] text-slate-500 mt-0.5">
+                  "{activeDrug.name}" is unchanged — rename or delete it via Edit above.
+                </p>
+              </div>
             </div>
-            <div className="flex gap-2 shrink-0">
-              {activeDrug && isDirty && (
+          ) : (
+            <>
+              <div className="flex-1">
+                <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  {activeDrug && isDirty ? 'Update this favorite?' : 'Save this dosing guideline?'}
+                </h4>
+                <p className="text-[10px] text-slate-500 mt-0.5">
+                  {activeDrug && isDirty
+                    ? `Overwrite "${activeDrug.name}" or save a new one.`
+                    : 'Add to Favorites for one-tap reuse.'}
+                </p>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                {activeDrug && isDirty && (
+                  <button
+                    onClick={handleUpdateFavorite}
+                    className="bg-teal-600 hover:bg-teal-700 text-white text-xs px-4 py-2.5 rounded-xl font-bold uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <Save className="w-3.5 h-3.5" /> Update
+                  </button>
+                )}
                 <button
-                  onClick={handleUpdateFavorite}
-                  className="bg-teal-600 hover:bg-teal-700 text-white text-xs px-4 py-2.5 rounded-xl font-bold uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-1.5"
+                  onClick={() => setFormMode('add')}
+                  className={`text-xs px-4 py-2.5 rounded-xl font-bold uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-1.5 ${
+                    activeDrug && isDirty
+                      ? 'bg-white border-2 border-slate-200 text-slate-700 hover:border-teal-500'
+                      : 'bg-teal-600 hover:bg-teal-700 text-white'
+                  }`}
                 >
-                  <Save className="w-3.5 h-3.5" /> Update
+                  {activeDrug && isDirty ? <Plus className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
+                  {activeDrug && isDirty ? 'Add New' : 'Save Favorite'}
                 </button>
-              )}
-              <button
-                onClick={() => setFormMode('add')}
-                className={`text-xs px-4 py-2.5 rounded-xl font-bold uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-1.5 ${
-                  activeDrug && isDirty
-                    ? 'bg-white border-2 border-slate-200 text-slate-700 hover:border-teal-500'
-                    : 'bg-teal-600 hover:bg-teal-700 text-white'
-                }`}
-              >
-                {activeDrug && isDirty ? <Plus className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
-                {activeDrug && isDirty ? 'Add New' : 'Save Favorite'}
-              </button>
-            </div>
-          </>
+              </div>
+            </>
+          )
         ) : formMode === 'add' ? (
           <FavoriteNameForm
             title="Save Current Guideline"

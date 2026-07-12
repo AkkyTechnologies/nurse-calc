@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Info, Play, Pause, Maximize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { formatDose } from '../utils/formatDose';
 
 interface DripRateCalculatorProps {
   transferData?: { volume: string; hours: string; minutes: string } | null;
@@ -107,7 +108,7 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
         </div>
         {dripRate > 0 && (
           <p className="text-[10px] text-slate-400 font-mono mt-1">
-            Exact: {dripRate.toFixed(2)} gtts/min
+            Exact: {formatDose(dripRate, 2)} gtts/min
           </p>
         )}
 
@@ -133,7 +134,7 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
               transition={{ type: 'spring', stiffness: 260, damping: 22 }}
             >
               <span className="text-xs text-slate-700 font-bold font-mono block">
-                1 drop / {(dripIntervalMs / 1000).toFixed(2)}s
+                1 drop / {formatDose(dripIntervalMs / 1000, 2)}s
               </span>
             </motion.div>
           )}
@@ -162,7 +163,7 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
             </div>
             <div className="flex justify-between items-center pt-1">
               <span>Exact Result:</span>
-              <span className="font-bold text-teal-600">{dripRate.toFixed(4)} gtts/min</span>
+              <span className="font-bold text-teal-600">{formatDose(dripRate, 4)} gtts/min</span>
             </div>
           </div>
         )}
