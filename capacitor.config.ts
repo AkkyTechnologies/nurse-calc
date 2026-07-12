@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.akky.nursecalc',
-  appName: 'Nurse Calc',
+  appId: 'com.akky.titr8',
+  appName: 'Titr8',
   webDir: 'dist'
 };
 

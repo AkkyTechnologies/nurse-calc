@@ -29,3 +29,7 @@ Captures/
 
 # Claude Code local-only settings (personal, not shared project config)
 .claude/settings.local.json
+
+# App Store submission drafts — screenshots, listing copy, legal page drafts.
+# Local reference only, not meant for the public GitHub repo.
+store-assets/

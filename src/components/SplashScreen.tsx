@@ -42,7 +42,7 @@ export default function SplashScreen({ onDismiss }: SplashScreenProps) {
       {/* Product icon — grayscale→teal morph */}
       <img
         src="/nurse-calc-icon.svg"
-        alt="Nurse Calc"
+        alt="Titr8"
         className="w-[100px] h-[100px] rounded-[23px] shadow-xl animate-[splash-morph_1.25s_cubic-bezier(0.22,1,0.36,1)_forwards]"
       />
 
@@ -52,7 +52,7 @@ export default function SplashScreen({ onDismiss }: SplashScreenProps) {
           className="text-[30px] font-medium uppercase text-slate-900 leading-none"
           style={{ fontFamily: 'var(--font-brand)', letterSpacing: '0.02em' }}
         >
-          Nurse Calc
+          Titr8
         </div>
         <div className="mt-3 text-[10px] font-bold uppercase text-teal-600 tracking-[0.22em]">
           Offline · Local · Fast

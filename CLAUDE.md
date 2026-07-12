@@ -4,7 +4,7 @@ Guidance for Claude Code working in this repository.
 
 ## What this is
 
-Nurse Calc — an offline-first nursing calculator (medication dosage, IV drip rate, IV flow rate, weight-based pediatric dosing) built by Christian (Akky) as a personal project for his girlfriend Ruth, a nurse. It's a single-page React app styled and behaving like a native iOS app, rendered inside a fixed-size simulated iPhone frame (currently 393×852 — the iPhone 16's logical point resolution, chosen deliberately as a realistic non-Pro device).
+Titr8 — an offline-first nursing calculator (medication dosage, IV drip rate, IV flow rate, weight-based pediatric dosing) built by Christian (Akky) as a personal project for his girlfriend Ruth, a nurse. It's a single-page React app styled and behaving like a native iOS app, rendered inside a fixed-size simulated iPhone frame (currently 393×852 — the iPhone 16's logical point resolution, chosen deliberately as a realistic non-Pro device).
 
 **Current state: web app only.** There is no Capacitor, no `ios/`/`android/` project yet. Wrapping this in Capacitor and getting the first iOS build running in Xcode is the next milestone — see "Next: first iOS build" below.
 
@@ -60,7 +60,7 @@ Nurse Calc — an offline-first nursing calculator (medication dosage, IV drip r
 The app is 100% web today. Rough shape of the work ahead — **confirm the specifics below with Christian before executing anything; they're open decisions, not settled defaults**:
 
 1. **Mac prerequisites**: Xcode (App Store) + `xcode-select --install`; CocoaPods (`brew install cocoapods` or `sudo gem install cocoapods`); Node/npm (no version pinned in the repo — use whatever's on the machine, note it if it causes friction).
-2. **Add Capacitor**: `npm i @capacitor/core @capacitor/cli @capacitor/ios`, then `npx cap init` — needs an app display name and a bundle identifier (e.g. `com.akky.nursecalc`; not yet decided).
+2. **Add Capacitor**: `npm i @capacitor/core @capacitor/cli @capacitor/ios`, then `npx cap init` — needs an app display name and a bundle identifier (e.g. `com.akky.titr8`; not yet decided).
 3. **Point Capacitor at the build**: `webDir: 'dist'` in `capacitor.config.ts`; always `npm run build` before `npx cap sync`.
 4. **App icon**: `assets/nurse-calc-icon.svg` is the only icon asset today. iOS needs a full-bleed 1024×1024 PNG (no pre-rounded corners — iOS applies its own mask) for Xcode's single-size App Icon slot. This needs to be exported/rasterized from the SVG, or redesigned specifically for iOS.
 5. `npx cap add ios` → `npx cap sync` → `npx cap open ios` — first run in the Xcode Simulator.

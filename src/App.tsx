@@ -164,12 +164,12 @@ export default function App() {
             onPointerCancel={cancelHold}
             onContextMenu={(e) => e.preventDefault()}
             title="Return to Dashboard Overview"
-            className="shrink-0 relative rounded-[9px] cursor-pointer transition-transform active:scale-90"
-            style={{ touchAction: 'none' }}
+            className="shrink-0 relative rounded-[9px] cursor-pointer transition-transform active:scale-90 select-none"
+            style={{ touchAction: 'none', WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
           >
             <img
               src="/nurse-calc-icon.svg"
-              alt="Nurse Calc"
+              alt="Titr8"
               className="w-7 h-7 rounded-[9px] transition-opacity duration-500"
               style={{ opacity: eggActive ? 0 : 1 }}
             />
@@ -244,7 +244,7 @@ export default function App() {
                 <div className="space-y-4">
                   <div className="bg-slate-50 border-2 border-slate-200 rounded-[24px] p-5 text-center">
                     <Compass className="w-8 h-8 text-teal-600 mx-auto mb-2 animate-bounce" />
-                    <h4 className="font-bold text-slate-800 text-sm uppercase tracking-wider">Welcome to Nurse Calc</h4>
+                    <h4 className="font-bold text-slate-800 text-sm uppercase tracking-wider">Welcome to Titr8</h4>
                     <p className="text-xs text-slate-500 mt-1 leading-relaxed font-semibold">
                       Your bedside companion for fast, accurate medication and IV math — dosage, drip rate, flow rate, and weight-based pediatric doses. Pick a calculator from the tab bar below.
                     </p>

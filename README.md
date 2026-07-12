@@ -1,4 +1,4 @@
-# Nurse Calc (Nursing Calculator)
+# Titr8 (Nursing Calculator)
 
 An elegant, high-precision, offline-first mobile application for nurses, practitioners, and clinical students to calculate medication dosages, drip rates, flow rates, and weight-based pediatric dosing — with clean visual aesthetics, safe adult dose capping, and interactive formula math.
 
@@ -34,7 +34,7 @@ Open points:
 
 ## Brand assets
 
-- **Nurse Calc app icon** — `assets/nurse-calc-icon.svg`, the **product** mark (a measured medication droplet cradling a clinical care cross, teal). This is what's used in the launch splash.
+- **Titr8 app icon** — `assets/nurse-calc-icon.svg`, the **product** mark (a measured medication droplet cradling a clinical care cross, teal). This is what's used in the launch splash.
 - Akky is the parent company. Its corporate mark is intentionally **not** used inside the product UI or splash — product surfaces stay teal-only; reach for the Akky logo only in company/marketing contexts, not calculator screens.
 - Body/UI type is **Inter**; numerics (every dose, result, and equation) are set in **JetBrains Mono** for a deliberate safety signal. Both are self-hosted via `@fontsource` (no Google Fonts request, even on first load with no network).
 
