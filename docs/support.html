@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Titr8 — Support</title>
+<style>
+  :root {
+    --teal: #0d9488;
+    --teal-600: #0d9488;
+    --teal-50: #f0fdfa;
+    --teal-100: #ccfbf1;
+    --ink: #0f172a;
+    --ink-soft: #475569;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --rose: #e11d48;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #f1f5f9;
+      --ink-soft: #cbd5e1;
+      --bg: #0b1220;
+      --card: #101a2c;
+      --border: #24344a;
+      --teal-50: #0b2b28;
+      --teal-100: #0f3934;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+  }
+  .wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 64px 24px 96px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+  .brand .mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .brand .mark svg { width: 20px; height: 20px; }
+  .brand .name { font-weight: 700; font-size: 17px; }
+
+  .hero { position: relative; margin-bottom: 12px; }
+  h1 { font-size: 34px; margin: 0 0 8px; letter-spacing: -0.01em; }
+  .hero p { color: var(--ink-soft); font-size: 16.5px; margin: 0; max-width: 48ch; }
+
+  .pulse {
+    width: 100%; height: 40px; margin: 32px 0 40px; opacity: 0.6;
+  }
+  .pulse path {
+    stroke: var(--teal); stroke-width: 2.5; fill: none;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  .contact-card {
+    background: linear-gradient(135deg, #14b8a6, #0f766e);
+    border-radius: 18px;
+    padding: 28px 30px;
+    color: #ffffff;
+    margin-bottom: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .contact-card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.85; margin-bottom: 4px; }
+  .contact-card .email { font-size: 22px; font-weight: 700; }
+  .contact-card a { color: #ffffff; text-decoration: none; }
+  .contact-card .cta {
+    background: rgba(255,255,255,0.16);
+    border: 1px solid rgba(255,255,255,0.35);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 13.5px;
+    white-space: nowrap;
+  }
+
+  h2.section-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--teal);
+    margin: 0 0 18px;
+  }
+
+  .faq { display: grid; gap: 14px; margin-bottom: 44px; }
+  .faq-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    display: flex;
+    gap: 16px;
+  }
+  .faq-icon {
+    width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+    background: var(--teal-100);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .faq-icon svg { width: 19px; height: 19px; stroke: var(--teal); }
+  .faq-item h3 { margin: 3px 0 6px; font-size: 15.5px; }
+  .faq-item p { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
+  .faq-item a { color: var(--teal); font-weight: 600; text-decoration: none; }
+
+  .signoff {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--ink-soft); font-size: 13.5px;
+    padding-top: 24px; border-top: 1px solid var(--border);
+  }
+  .signoff .heart { color: var(--rose); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <div class="mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3c0 0 6 6.2 6 9.6a6 6 0 1 1-12 0C6 9.2 12 3 12 3Z" fill="#fff"/><rect x="10.7" y="10.8" width="2.6" height="6" rx="1" fill="#0d9488"/><rect x="8.7" y="12.8" width="6" height="2.6" rx="1" fill="#0d9488"/></svg>
+      </div>
+      <span class="name">Titr8</span>
+    </div>
+
+    <div class="hero">
+      <h1>Hey — how can we help?</h1>
+      <p>Whether it's a bug, a mixed-up formula, or a feature you wish existed: a real person reads every message, usually within a shift or two.</p>
+    </div>
+
+    <svg class="pulse" viewBox="0 0 600 40" preserveAspectRatio="none">
+      <path d="M0 20 H220 L240 6 L258 34 L276 20 L292 20 L305 4 L320 32 L335 20 H600" />
+    </svg>
+
+    <div class="contact-card">
+      <div>
+        <div class="label">Email support</div>
+        <div class="email"><a href="mailto:support@akky.tech">support@akky.tech</a></div>
+      </div>
+      <a class="cta" href="mailto:support@akky.tech">Write to us →</a>
+    </div>
+
+    <h2 class="section-title">Frequently asked</h2>
+    <div class="faq">
+      <div class="faq-item">
+        <div class="faq-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.93 4.93a4 4 0 0 1 5.66 0L12 6.34l1.41-1.41a4 4 0 1 1 5.66 5.66L12 18l-7.07-7.07a4 4 0 0 1 0-5.66Z"/></svg>
+        </div>
+        <div>
+          <h3>Is my data actually private?</h3>
+          <p>Yes — Titr8 runs 100% offline, no exceptions. Full details in our <a href="./privacy-policy.html">Privacy Policy</a>.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+        </div>
+        <div>
+          <h3>A calculation looks off — what do I do?</h3>
+          <p>Stop and verify against your facility's policy and a second source before any clinical use, then email us the exact inputs you used so we can check it right away.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.5L5 9l4.1 3.3L7.8 17 12 14.3 16.2 17l-1.3-4.7L19 9l-5.1-1.5Z"/></svg>
+        </div>
+        <div>
+          <h3>Got an idea for a feature?</h3>
+          <p>We'd love to hear it. Calculator requests, favorite-list tweaks, anything — send it over.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        </div>
+        <div>
+          <h3>How fast will I hear back?</h3>
+          <p>We aim for one business day. If it's urgent and patient-care related, please rely on your facility's official resources first — we're a small team, not an on-call service.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="signoff">
+      <span>Built with <span class="heart">♥</span> for the nurses on shift right now — Akky Technologies FZCO</span>
+    </div>
+  </div>
+</body>
+</html>
