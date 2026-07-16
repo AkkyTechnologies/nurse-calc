@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Info, AlertTriangle, Save, Plus, Check } from 'lucide-react';
+import { ShieldCheck, Info, Save, Plus, Check } from 'lucide-react';
 import { motion } from 'motion/react';
 import { PediatricPreset } from '../types';
 import { INITIAL_PEDIATRIC_PRESETS } from '../presetsData';
@@ -23,7 +23,6 @@ export default function PediatricCalculator() {
   const [targetDoseMultiplier, setTargetDoseMultiplier] = useState<string>('15');
   const [dosingType, setDosingType] = useState<'day' | 'dose'>('dose');
   const [dividedBy, setDividedBy] = useState<string>('1');
-  const [maxAdultCap, setMaxAdultCap] = useState<string>('1000');
 
   const [activeDrugId, setActiveDrugId] = useState<string | null>(null);
   const [editingPresets, setEditingPresets] = useState(false);
@@ -35,7 +34,6 @@ export default function PediatricCalculator() {
     setTargetDoseMultiplier(drug.recommendedDose.toString());
     setDosingType(drug.dosingType);
     setDividedBy(drug.defaultDividedBy.toString());
-    setMaxAdultCap(drug.maxAdultDoseMg.toString());
     setActiveDrugId(drug.id);
   };
 
@@ -44,8 +42,7 @@ export default function PediatricCalculator() {
     !!activeDrug &&
     (activeDrug.recommendedDose !== (parseFloat(targetDoseMultiplier) || 0) ||
       activeDrug.dosingType !== dosingType ||
-      activeDrug.defaultDividedBy !== (parseInt(dividedBy) || 1) ||
-      activeDrug.maxAdultDoseMg !== (parseFloat(maxAdultCap) || 0));
+      activeDrug.defaultDividedBy !== (parseInt(dividedBy) || 1));
 
   const handleAddFavorite = (name: string) => {
     const id = addDrugPreset({
@@ -53,7 +50,6 @@ export default function PediatricCalculator() {
       recommendedDose: parseFloat(targetDoseMultiplier) || 0,
       dosingType,
       defaultDividedBy: parseInt(dividedBy) || 1,
-      maxAdultDoseMg: parseFloat(maxAdultCap) || 0,
     });
     setActiveDrugId(id);
     setFormMode(null);
@@ -65,7 +61,6 @@ export default function PediatricCalculator() {
       recommendedDose: parseFloat(targetDoseMultiplier) || 0,
       dosingType,
       defaultDividedBy: parseInt(dividedBy) || 1,
-      maxAdultDoseMg: parseFloat(maxAdultCap) || 0,
     });
   };
 
@@ -87,7 +82,6 @@ export default function PediatricCalculator() {
 
   const DM = parseFloat(targetDoseMultiplier) || 0;
   const DIV = parseInt(dividedBy) || 1;
-  const MAX_CAP = parseFloat(maxAdultCap) || 99999;
 
   // Perform Pediatric math
   // Base daily/dose calculation
@@ -101,16 +95,12 @@ export default function PediatricCalculator() {
     totalCalculatedDose = singleDose * DIV;
   }
 
-  // Check if exceeds safety cap
-  const isCapped = singleDose > MAX_CAP;
-  const finalSingleDose = isCapped ? MAX_CAP : singleDose;
-
   return (
     <div className="space-y-4" id="pediatric-calc-container">
-      {/* Favorites: pediatric dosing guidelines */}
+      {/* Favorites: pediatric presets */}
       <div>
         <div className="flex items-center justify-between mb-1.5 px-1">
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Drug Favorites</span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Favorites</span>
           <button
             type="button"
             onClick={() => {
@@ -134,16 +124,16 @@ export default function PediatricCalculator() {
             setFormMode('rename');
           }}
           renderMeta={(preset) => `${preset.recommendedDose} mg/kg${preset.dosingType === 'day' ? '/day' : ''}`}
-          emptyLabel="No favorites saved. Save your current guideline setup below."
+          emptyLabel="No favorites saved. Save your current setup below."
         />
       </div>
 
       {/* Main Inputs Form */}
       <div className="bg-white border-2 border-slate-200 rounded-[24px] p-6 shadow-sm space-y-5">
-        {/* Patient Weight */}
+        {/* Person Weight */}
         <div className="space-y-1.5">
           <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
-            Patient Weight
+            Person Weight
           </label>
           <div className="flex border-2 border-slate-200 rounded-2xl bg-white focus-within:border-teal-500 transition-colors">
             <input
@@ -220,28 +210,6 @@ export default function PediatricCalculator() {
           </div>
         </div>
 
-        {/* Max Safe Dose */}
-        <div className="space-y-1.5">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-1">
-            Max Safe Dose (Adult Cap)
-          </label>
-          <div className="flex border-2 border-slate-200 rounded-2xl bg-white focus-within:border-teal-500 transition-colors">
-            <input
-              type="number"
-              inputMode="decimal"
-              pattern="[0-9]*"
-              placeholder="1000"
-              value={maxAdultCap}
-              onChange={(e) => setMaxAdultCap(e.target.value)}
-              className="w-full p-4 bg-transparent outline-none text-xl font-bold font-mono"
-              id="pediatric-max-cap-input"
-            />
-            <span className="px-4 bg-slate-50 border-l border-slate-200 rounded-r-2xl font-bold text-slate-500 text-sm flex items-center shrink-0">
-              mg
-            </span>
-          </div>
-        </div>
-
         {/* Doses per Day (Only shown when Per Day is active) */}
         {dosingType === 'day' && (
           <div className="space-y-1.5">
@@ -273,16 +241,6 @@ export default function PediatricCalculator() {
         )}
       </div>
 
-      {/* Safety Alerts */}
-      {isCapped && (
-        <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs flex items-start gap-2 leading-relaxed">
-          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600 animate-pulse" />
-          <div>
-            <strong>Safety Cap Applied:</strong> Recommended dose capped at adult single limit of <strong>{MAX_CAP} mg</strong>.
-          </div>
-        </div>
-      )}
-
       {/* Primary Result Display */}
       <div className="bg-white border-2 border-slate-200 rounded-[28px] p-6 flex flex-col items-center justify-center text-center shadow-sm relative overflow-hidden">
         
@@ -301,12 +259,12 @@ export default function PediatricCalculator() {
 
         <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400 mb-3 flex items-center justify-center gap-1.5 whitespace-nowrap">
           <ShieldCheck className="w-3.5 h-3.5 text-teal-600 animate-pulse shrink-0" />
-          RECOMMENDED PEDIATRIC DOSE
+          PEDIATRIC MATH RESULT
         </div>
 
-        {/* Dose Output */}
+        {/* Dose Output — the literal computed value, never clamped to the adult cap */}
         <div className="text-6xl font-black text-teal-600 tabular-nums tracking-tight">
-          {W_input > 0 ? formatDose(finalSingleDose, 1) : '0'}
+          {W_input > 0 ? formatDose(singleDose, 1) : '0'}
         </div>
         <div className="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
           Milligrams per Dose
@@ -339,12 +297,6 @@ export default function PediatricCalculator() {
                 </span>
               </div>
             )}
-            {isCapped && (
-              <div className="flex items-center justify-between text-[11px] font-bold text-rose-500 pt-1 border-t border-slate-100/50">
-                <span className="uppercase tracking-wider">LIMIT</span>
-                <span>Max safe limit cap of {MAX_CAP} mg reached</span>
-              </div>
-            )}
           </div>
         )}
       </div>
@@ -368,7 +320,7 @@ export default function PediatricCalculator() {
             <>
               <div className="flex-1">
                 <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                  {activeDrug && isDirty ? 'Update this favorite?' : 'Save this dosing guideline?'}
+                  {activeDrug && isDirty ? 'Update this favorite?' : 'Save this preset?'}
                 </h4>
                 <p className="text-[10px] text-slate-500 mt-0.5">
                   {activeDrug && isDirty
@@ -401,8 +353,8 @@ export default function PediatricCalculator() {
           )
         ) : formMode === 'add' ? (
           <FavoriteNameForm
-            title="Save Current Guideline"
-            placeholder="Drug name (e.g. Cefdinir)"
+            title="Save Current Preset"
+            placeholder="Example name"
             submitLabel="Save"
             onSubmit={handleAddFavorite}
             onCancel={() => setFormMode(null)}

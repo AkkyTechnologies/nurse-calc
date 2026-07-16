@@ -19,5 +19,4 @@ export interface PediatricPreset extends FavoriteItem {
   recommendedDose: number;
   dosingType: 'day' | 'dose'; // mg/kg/day vs mg/kg/dose
   defaultDividedBy: number;
-  maxAdultDoseMg: number;
 }

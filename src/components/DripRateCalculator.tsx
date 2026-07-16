@@ -3,35 +3,18 @@ import { ShieldCheck, Info, Play, Pause, Maximize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatDose } from '../utils/formatDose';
 
-interface DripRateCalculatorProps {
-  transferData?: { volume: string; hours: string; minutes: string } | null;
-  onClearTransfer?: () => void;
-}
-
-export default function DripRateCalculator({ transferData, onClearTransfer }: DripRateCalculatorProps) {
+export default function DripRateCalculator() {
   const [volume, setVolume] = useState<string>('1000');
   const [hours, setHours] = useState<string>('8');
   const [minutes, setMinutes] = useState<string>('0');
   const [dropFactor, setDropFactor] = useState<string>('20');
-  
+
   // Animation active status
   const [isAnimating, setIsAnimating] = useState(true);
   const [dropCount, setDropCount] = useState(0);
   const [showFormula, setShowFormula] = useState(false);
   // Tap the chamber to magnify it; tap again to shrink.
   const [isMagnified, setIsMagnified] = useState(false);
-
-  // Transfer prefill hook
-  useEffect(() => {
-    if (transferData) {
-      setVolume(transferData.volume);
-      setHours(transferData.hours);
-      setMinutes(transferData.minutes);
-      if (onClearTransfer) {
-        onClearTransfer();
-      }
-    }
-  }, [transferData, onClearTransfer]);
 
   const V = parseFloat(volume) || 0;
   const H = parseFloat(hours) || 0;
@@ -64,12 +47,12 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
 
   return (
     <div className="space-y-5" id="drip-rate-calc-container">
-      {/* Main Math Formula Result Container with Metronome Drop Chamber */}
+      {/* Main Math Formula Result Container with Demo Drop Chamber */}
       <div className="bg-white border-2 border-slate-200 rounded-[32px] p-6 shadow-sm relative overflow-hidden text-center flex flex-col items-center">
         <div className="w-full flex justify-between items-center mb-4 px-1">
           <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400 flex items-center gap-1 whitespace-nowrap">
             <ShieldCheck className="w-3.5 h-3.5 text-teal-600 animate-pulse shrink-0" />
-            GRAVITY DRIP RATE
+            DRIP MATH RESULT
           </div>
           <div className="flex items-center gap-1.5">
             {dripRate > 0 && (
@@ -82,7 +65,7 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
                 ) : (
                   <Play className="w-3 h-3 text-teal-600 fill-teal-600" />
                 )}
-                <span>Metronome</span>
+                <span>{isAnimating ? 'Pause' : 'Play'}</span>
               </button>
             )}
             <button
@@ -150,6 +133,12 @@ export default function DripRateCalculator({ transferData, onClearTransfer }: Dr
             <Maximize2 size={13} strokeWidth={2.5} />
           </motion.button>
         </motion.div>
+
+        {dripRate > 0 && (
+          <p className="text-[10px] text-slate-400 italic -mt-2 mb-1 text-center leading-normal">
+            Demo only.
+          </p>
+        )}
 
         {dripRate > 0 && showFormula && (
           <div className="w-full text-left bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2 text-xs text-slate-500 font-mono">

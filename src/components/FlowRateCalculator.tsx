@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Info, AlertTriangle, Droplet } from 'lucide-react';
+import { ShieldCheck, Info, AlertTriangle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { formatDose } from '../utils/formatDose';
 
-interface FlowRateCalculatorProps {
-  onTransferToDrip?: (volume: string, hours: string, minutes: string) => void;
-}
-
-export default function FlowRateCalculator({ onTransferToDrip }: FlowRateCalculatorProps) {
+export default function FlowRateCalculator() {
   const [calcMode, setCalcMode] = useState<'rate' | 'duration'>('rate');
   const [showFormula, setShowFormula] = useState<boolean>(false);
   
@@ -48,17 +44,6 @@ export default function FlowRateCalculator({ onTransferToDrip }: FlowRateCalcula
   // Alerts
   const showPumpLimitWarning = calcMode === 'rate' && calculatedRate > 999;
   const showUnsafeSlowWarning = calcMode === 'rate' && calculatedRate > 0 && calculatedRate < 10;
-
-  const handleTransfer = () => {
-    if (!onTransferToDrip) return;
-    if (calcMode === 'rate') {
-      onTransferToDrip(volume, hours, minutes);
-    } else {
-      onTransferToDrip(durationVolume, resultHours.toString(), resultMins.toString());
-    }
-  };
-
-  const isTransferAvailable = calcMode === 'rate' ? (V > 0 && totalHours > 0) : (DV > 0 && TR > 0);
 
   return (
     <div className="space-y-5" id="flow-rate-calc-container">
@@ -207,7 +192,7 @@ export default function FlowRateCalculator({ onTransferToDrip }: FlowRateCalcula
         <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs flex items-start gap-2 leading-relaxed">
           <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600 animate-pulse" />
           <span>
-            <strong>Safety Warning:</strong> {formatDose(calculatedRate, 1)} mL/hr exceeds standard volumetric infusion pump limits (standard max: 999 mL/hr). Please double-check catheter gauge and medical orders.
+            <strong>Above typical range:</strong> {formatDose(calculatedRate, 1)} mL/hr is above the standard pump limit used in this calculation (999 mL/hr). Math only — confirm any device or order limits independently.
           </span>
         </div>
       )}
@@ -216,7 +201,7 @@ export default function FlowRateCalculator({ onTransferToDrip }: FlowRateCalcula
         <div className="p-3.5 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl text-xs flex items-start gap-2 leading-relaxed">
           <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
           <span>
-            <strong>Note:</strong> Flow rate of {formatDose(calculatedRate, 1)} mL/hr is very slow. Verify if microbore tubing or secondary line syringe infusion is required.
+            <strong>Below typical range:</strong> Flow rate of {formatDose(calculatedRate, 1)} mL/hr is below the 10 mL/hr threshold used here. Math only — confirm tubing/device requirements independently.
           </span>
         </div>
       )}
@@ -239,7 +224,7 @@ export default function FlowRateCalculator({ onTransferToDrip }: FlowRateCalcula
 
         <div className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 mb-3 flex items-center justify-center gap-1.5">
           <ShieldCheck className="w-3.5 h-3.5 text-teal-600 animate-pulse" />
-          {calcMode === 'rate' ? 'INFUSION PUMP FLOW RATE' : 'REQUIRED DELIVERY TIME'}
+          {calcMode === 'rate' ? 'FLOW RESULT' : 'DURATION RESULT'}
         </div>
 
         {calcMode === 'rate' ? (
@@ -291,17 +276,6 @@ export default function FlowRateCalculator({ onTransferToDrip }: FlowRateCalcula
               </div>
             )}
           </div>
-        )}
-
-        {/* Transfer Button - Matches Typical Nursing Workflow for Gravity Infusion Setup */}
-        {isTransferAvailable && onTransferToDrip && (
-          <button
-            onClick={handleTransfer}
-            className="mt-5 w-full bg-teal-50 hover:bg-teal-100 text-teal-700 border-2 border-teal-200 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-          >
-            <Droplet className="w-4 h-4 text-teal-600 animate-pulse" />
-            <span>Transfer to Gravity Drip Calc</span>
-          </button>
         )}
       </div>
     </div>

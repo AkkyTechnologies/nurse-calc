@@ -6,7 +6,7 @@ Guidance for Claude Code working in this repository.
 
 Titr8 — an offline-first nursing calculator (medication dosage, IV drip rate, IV flow rate, weight-based pediatric dosing) built by Christian (Akky) as a personal project for his girlfriend Ruth, a nurse. It's a single-page React app styled and behaving like a native iOS app, rendered inside a fixed-size simulated iPhone frame (currently 393×852 — the iPhone 16's logical point resolution, chosen deliberately as a realistic non-Pro device).
 
-**Current state: web app only.** There is no Capacitor, no `ios/`/`android/` project yet. Wrapping this in Capacitor and getting the first iOS build running in Xcode is the next milestone — see "Next: first iOS build" below.
+**Current state: shipping natively.** The app is wrapped via Capacitor and built as real `ios/` and `android/` Xcode/Gradle projects (bundle id `com.akky.titr8ios`, iOS 17.0 deployment target) — see `README.md`'s "iOS app" section for build/signing/submission details. The "Next: first iOS build" section below is now historical context, not open work.
 
 ## Tech stack
 
@@ -19,7 +19,7 @@ Titr8 — an offline-first nursing calculator (medication dosage, IV drip rate, 
 
 - `src/App.tsx` — the whole app shell: one fixed-size simulated iPhone frame containing a status bar, a title bar (tap the app icon to return to the dashboard; long-press it for the Ruth easter egg), the active calculator, a bottom tab bar, and a home indicator. `activeTab` (a `CalculatorType`) drives which screen renders and persists to `localStorage` (`nurse_calc_last_tab`) so the app reopens where the user left off.
 - `src/components/BottomTabBar.tsx` — 4 tabs: Dosage, Drip Rate, Flow Rate, Pediatric. There's a 5th internal screen, `'planner'`, the dashboard/welcome screen — reachable via the home indicator or the title-bar icon, not a tab.
-- Calculators: `DosageCalculator.tsx`, `DripRateCalculator.tsx`, `FlowRateCalculator.tsx`, `PediatricCalculator.tsx` — each self-contained, no shared calculator state. `DripRateCalculator` has a tap-to-magnify realistic drip-chamber visualization; `FlowRateCalculator` can hand off its result into Drip Rate.
+- Calculators: `DosageCalculator.tsx`, `DripRateCalculator.tsx`, `FlowRateCalculator.tsx`, `PediatricCalculator.tsx` — each self-contained, no shared calculator state. `DripRateCalculator` has a tap-to-magnify realistic drip-chamber visualization, presented as a labeled demo, not a real-time infusion guide.
 - `src/hooks/useFavorites.ts` — generic CRUD + `localStorage` hook (add/update/rename/remove), shared by any screen with a favorites list. Currently used by Dosage (`nurse_calc_presets`) and Pediatric (`nurse_calc_pediatric_presets`). Drip Rate and Flow Rate deliberately do **not** have user-editable favorites (just fixed quick-select buttons) — that's a scope decision, not an oversight; don't "fix" it without asking.
 - `src/components/PresetCarousel.tsx` — generic (`<T extends FavoriteItem>`) center-emphasis snap-scroll carousel, fixed height regardless of item count, used by both favorites screens. Tap any visible card to load it immediately; an "Edit" toggle reveals rename/delete per card.
 - `src/components/FavoriteNameForm.tsx` — shared inline add/rename form for favorites.

@@ -86,7 +86,7 @@ export default function DosageCalculator() {
         }
       }
       setMessage({
-        text: `Caution: Units differ (${desiredUnit} vs ${haveUnit}). Ensure dosage measurements match before administering.`,
+        text: `Caution: Units differ (${desiredUnit} vs ${haveUnit}). Ensure dosage measurements match before use.`,
         type: 'warning',
       });
     } else {
@@ -118,7 +118,7 @@ export default function DosageCalculator() {
     });
     setActivePresetId(id);
     setFormMode(null);
-    setMessage({ text: `Saved drug preset "${name}"`, type: 'success' });
+    setMessage({ text: `Saved "${name}"`, type: 'success' });
     setTimeout(() => setMessage(null), 3000);
   };
 
@@ -342,7 +342,7 @@ export default function DosageCalculator() {
 
         <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-3 flex items-center justify-center gap-1.5">
           <ShieldCheck className="w-3.5 h-3.5 text-teal-600 animate-pulse" />
-          CALCULATED RESULT
+          MATH RESULT
         </div>
 
         {/* Large Volume Output */}
@@ -369,7 +369,7 @@ export default function DosageCalculator() {
         )}
         {H > 0 && (
           <p className="text-[10px] text-slate-400 italic mt-3 text-center leading-normal">
-            *Always verify against physician's prescription and product packaging.
+            Math only. Verify order &amp; product.
           </p>
         )}
       </div>
@@ -419,7 +419,7 @@ export default function DosageCalculator() {
                   }`}
                 >
                   {activePreset && isDirty ? <Plus className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
-                  {activePreset && isDirty ? 'Add New' : 'Save Drug Preset'}
+                  {activePreset && isDirty ? 'Add New' : 'Save Preset'}
                 </button>
               </div>
             </>
@@ -427,7 +427,7 @@ export default function DosageCalculator() {
         ) : formMode === 'add' ? (
           <FavoriteNameForm
             title="Save Current Concentration"
-            placeholder="Medication Name (e.g. Fentanyl IV)"
+            placeholder="Example name"
             submitLabel="Save"
             onSubmit={handleAddFavorite}
             onCancel={() => setFormMode(null)}

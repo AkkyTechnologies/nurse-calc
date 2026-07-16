@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
+import { App as CapacitorApp } from '@capacitor/app';
 import { CalculatorType } from './types';
 
 // Component imports
@@ -15,12 +16,15 @@ import PediatricCalculator from './components/PediatricCalculator';
 import BottomTabBar from './components/BottomTabBar';
 import SplashScreen from './components/SplashScreen';
 import RuthEasterEgg from './components/RuthEasterEgg';
+import StudyUseDisclaimer from './components/StudyUseDisclaimer';
+import AboutOverlay from './components/AboutOverlay';
 
 // Icon imports
-import { Compass, WifiOff, ChevronUp } from 'lucide-react';
+import { Compass, WifiOff, ChevronUp, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 const LAST_TAB_KEY = 'nurse_calc_last_tab';
+const DISCLAIMER_ACK_KEY = 'nurse_calc_disclaimer_ack_v1';
 
 // Running as a real iOS app (Capacitor) vs. the browser preview. Native gets
 // the real device's own status bar and home indicator, so the simulated
@@ -40,6 +44,11 @@ export default function App() {
 
   // Launch splash: shown once per app load, tap anywhere (or ~1.4s) to dismiss.
   const [showSplash, setShowSplash] = useState(true);
+
+  // First-launch study-use disclaimer — must be acknowledged once, ever.
+  const [showDisclaimer, setShowDisclaimer] = useState(() => !localStorage.getItem(DISCLAIMER_ACK_KEY));
+  // About/Educational-use overlay — optional, reachable any time from the Dashboard.
+  const [showAbout, setShowAbout] = useState(false);
 
   // --- Ruth dedication: long-press the app icon on the Dashboard ---
   type EggPhase = 'off' | 'color' | 'reveal';
@@ -106,8 +115,19 @@ export default function App() {
     };
   }, []);
 
-  // Shared transfer state for Flow Rate -> Drip Rate
-  const [transferData, setTransferData] = useState<{ volume: string; hours: string; minutes: string } | null>(null);
+  // Android hardware/gesture Back: close the egg, then go up to the Dashboard,
+  // only exiting the app from the Dashboard itself. No-op listener on iOS.
+  useEffect(() => {
+    if (!isNative) return;
+    const listener = CapacitorApp.addListener('backButton', () => {
+      if (eggActive) closeEgg();
+      else if (activeTab !== 'planner') setActiveTab('planner');
+      else CapacitorApp.exitApp();
+    });
+    return () => {
+      listener.then((l) => l.remove());
+    };
+  }, [activeTab, eggActive]);
 
   // Reset scroll to top whenever the active calculator changes.
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -219,22 +239,10 @@ export default function App() {
               {activeTab === 'dosage' && <DosageCalculator />}
 
               {/* Drip Rate Tab */}
-              {activeTab === 'drip-rate' && (
-                <DripRateCalculator
-                  transferData={transferData}
-                  onClearTransfer={() => setTransferData(null)}
-                />
-              )}
+              {activeTab === 'drip-rate' && <DripRateCalculator />}
 
               {/* Flow Rate Tab */}
-              {activeTab === 'flow-rate' && (
-                <FlowRateCalculator
-                  onTransferToDrip={(vol, hrs, mins) => {
-                    setTransferData({ volume: vol, hours: hrs, minutes: mins });
-                    setActiveTab('drip-rate');
-                  }}
-                />
-              )}
+              {activeTab === 'flow-rate' && <FlowRateCalculator />}
 
               {/* Pediatric Tab */}
               {activeTab === 'pediatric' && <PediatricCalculator />}
@@ -246,20 +254,32 @@ export default function App() {
                     <Compass className="w-8 h-8 text-teal-600 mx-auto mb-2 animate-bounce" />
                     <h4 className="font-bold text-slate-800 text-sm uppercase tracking-wider">Welcome to Titr8</h4>
                     <p className="text-xs text-slate-500 mt-1 leading-relaxed font-semibold">
-                      Your bedside companion for fast, accurate medication and IV math — dosage, drip rate, flow rate, and weight-based pediatric doses. Pick a calculator from the tab bar below.
+                      A practice companion for nursing math — dosage, drip rate, flow rate, and weight-based pediatric calculations. Pick a calculator from the tab bar below.
                     </p>
                   </div>
 
                   <div className="bg-white border-2 border-slate-200 rounded-2xl p-4 flex items-center justify-between gap-3">
                     <div>
                       <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider">Offline Secure Engine</h4>
-                      <p className="text-[10px] text-slate-500 mt-0.5 font-semibold">All math runs locally. No patient data transmitted.</p>
+                      <p className="text-[10px] text-slate-500 mt-0.5 font-semibold">All math runs locally. Nothing leaves this device.</p>
                     </div>
                     <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold uppercase tracking-wider rounded-full shrink-0">
                       <WifiOff className="w-3 h-3 text-emerald-600" />
                       100% Local
                     </span>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowAbout(true)}
+                    className="w-full bg-white border-2 border-slate-200 rounded-2xl p-4 flex items-center gap-3 text-left hover:border-teal-300 transition-colors cursor-pointer"
+                    id="about-disclaimer-btn"
+                  >
+                    <span className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-teal-50 text-teal-600">
+                      <Info className="w-4 h-4" />
+                    </span>
+                    <h4 className="text-[11px] font-bold text-slate-800 uppercase tracking-wider">About &amp; Disclaimer</h4>
+                  </button>
                 </div>
               )}
             </motion.div>
@@ -299,6 +319,19 @@ export default function App() {
 
         {/* Launch splash overlay */}
         {showSplash && <SplashScreen onDismiss={() => setShowSplash(false)} />}
+
+        {/* First-launch study-use disclaimer — shown once, right after the splash dismisses */}
+        {!showSplash && showDisclaimer && (
+          <StudyUseDisclaimer
+            onAccept={() => {
+              localStorage.setItem(DISCLAIMER_ACK_KEY, '1');
+              setShowDisclaimer(false);
+            }}
+          />
+        )}
+
+        {/* About / Educational-use overlay — reachable any time from the Dashboard */}
+        <AboutOverlay active={showAbout} onClose={() => setShowAbout(false)} />
       </div>
     </div>
   );
