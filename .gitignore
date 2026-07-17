@@ -18,6 +18,11 @@ android/app/libs/
 local.properties
 Captures/
 
+# Android app-signing secrets — never commit the keystore or its passwords.
+android/keystore.properties
+*.jks
+*.keystore
+
 # IDE / Editor support files
 .idea/
 .vscode/

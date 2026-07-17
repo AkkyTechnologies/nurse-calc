@@ -1,0 +1,18 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Titr8 adaptive icon foreground">
+  <defs>
+    <linearGradient id="drop" x1="512" y1="196" x2="512" y2="806" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"></stop>
+      <stop offset="1" stop-color="#e9fbf7"></stop>
+    </linearGradient>
+  </defs>
+
+  <!-- Full-bleed, unscaled — @capacitor/assets applies its own 16.7% inset to
+       both layers (matching Android's 108dp-canvas/72dp-safe-zone spec), so the
+       source here should be the same full-size droplet as the flat iOS icon,
+       not pre-shrunk. -->
+  <path d="M512 196 C512 196 760 470 760 604 A248 248 0 1 1 264 604 C264 470 512 196 512 196 Z" fill="url(#drop)"></path>
+  <g fill="#0d9488">
+    <rect x="476" y="486" width="72" height="256" rx="20"></rect>
+    <rect x="384" y="578" width="256" height="72" rx="20"></rect>
+  </g>
+</svg>
