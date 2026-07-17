@@ -7,6 +7,7 @@ import { useFavorites } from '../hooks/useFavorites';
 import PresetCarousel from './PresetCarousel';
 import FavoriteNameForm from './FavoriteNameForm';
 import { formatDose } from '../utils/formatDose';
+import { calculatePediatricDose, convertWeightToKg } from '../calculations/pediatric';
 
 export default function PediatricCalculator() {
   const {
@@ -76,24 +77,15 @@ export default function PediatricCalculator() {
     if (activeDrugId === id) setActiveDrugId(null);
   };
 
-  // Convert weight to kg for standard formulas
+  // Convert weight to kg for standard formulas — see src/calculations/pediatric.ts
   const W_input = parseFloat(weight) || 0;
-  const weightInKg = weightUnit === 'lb' ? W_input / 2.20462 : W_input;
+  const weightInKg = convertWeightToKg(W_input, weightUnit);
 
   const DM = parseFloat(targetDoseMultiplier) || 0;
   const DIV = parseInt(dividedBy) || 1;
 
-  // Perform Pediatric math
-  // Base daily/dose calculation
-  let totalCalculatedDose = weightInKg * DM;
-  let singleDose = totalCalculatedDose;
-
-  if (dosingType === 'day') {
-    singleDose = totalCalculatedDose / (DIV || 1);
-  } else {
-    // dosingType === 'dose'
-    totalCalculatedDose = singleDose * DIV;
-  }
+  // Perform Pediatric math — see src/calculations/pediatric.ts
+  const { singleDose, totalDose: totalCalculatedDose } = calculatePediatricDose(weightInKg, DM, dosingType, DIV);
 
   return (
     <div className="space-y-4" id="pediatric-calc-container">

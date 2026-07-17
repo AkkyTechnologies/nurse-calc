@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Info, Play, Pause, Maximize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { formatDose } from '../utils/formatDose';
+import { calculateDripRate } from '../calculations/dripRate';
 
 export default function DripRateCalculator() {
   const [volume, setVolume] = useState<string>('1000');
@@ -21,14 +22,8 @@ export default function DripRateCalculator() {
   const M = parseFloat(minutes) || 0;
   const DF = parseFloat(dropFactor) || 0;
 
-  // Convert hours + minutes to total minutes
-  const totalMinutes = (H * 60) + M;
-
-  // Drip rate (gtts/min) = (V * DF) / totalMinutes
-  let dripRate = 0;
-  if (totalMinutes > 0) {
-    dripRate = (V * DF) / totalMinutes;
-  }
+  // See src/calculations/dripRate.ts for the pure calculation.
+  const { dripRate, totalMinutes } = calculateDripRate(V, H, M, DF);
 
   // Calculate milliseconds interval for visual drip
   // 1 minute = 60000ms. interval = 60000 / dripRate

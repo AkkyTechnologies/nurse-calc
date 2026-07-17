@@ -7,6 +7,7 @@ import PresetCarousel from './PresetCarousel';
 import FavoriteNameForm from './FavoriteNameForm';
 import { useFavorites } from '../hooks/useFavorites';
 import { formatDose } from '../utils/formatDose';
+import { calculateDosage, convertMassUnit } from '../calculations/dosage';
 
 export default function DosageCalculator() {
   const {
@@ -48,33 +49,18 @@ export default function DosageCalculator() {
       const dVal = parseFloat(desiredDose);
       const hVal = parseFloat(haveDose);
       if (!isNaN(dVal) && !isNaN(hVal)) {
-        let conversionFactor = 1;
+        // Same mass-conversion table calculateDosage() uses below — single
+        // source of truth, see docs/adr/0001-independent-calculation-modules.md.
+        const convertedDose = convertMassUnit(dVal, desiredUnit, haveUnit);
         let possibleResult = '';
 
-        if (desiredUnit === 'mcg' && haveUnit === 'mg') {
-          // mcg to mg
-          conversionFactor = 0.001;
-          const convertedDose = dVal * conversionFactor;
+        if (convertedDose !== null) {
+          // Preserves this preview's pre-extraction quantity fallback of
+          // `|| 1` (the main calculation below intentionally uses `|| 0`,
+          // a difference left as-is per the "numbers in, numbers out" scope
+          // decision — parsing/fallback behavior is untouched by this pass).
           const finalVol = (convertedDose / hVal) * (parseFloat(quantity) || 1);
-          possibleResult = `Auto-converted Desired Dose: ${convertedDose} mg. Volume: ${formatDose(finalVol, 3)} ${quantityUnit}`;
-        } else if (desiredUnit === 'mg' && haveUnit === 'mcg') {
-          // mg to mcg
-          conversionFactor = 1000;
-          const convertedDose = dVal * conversionFactor;
-          const finalVol = (convertedDose / hVal) * (parseFloat(quantity) || 1);
-          possibleResult = `Auto-converted Desired Dose: ${convertedDose} mcg. Volume: ${formatDose(finalVol, 3)} ${quantityUnit}`;
-        } else if (desiredUnit === 'mg' && haveUnit === 'g') {
-          // mg to g
-          conversionFactor = 0.001;
-          const convertedDose = dVal * conversionFactor;
-          const finalVol = (convertedDose / hVal) * (parseFloat(quantity) || 1);
-          possibleResult = `Auto-converted Desired Dose: ${convertedDose} g. Volume: ${formatDose(finalVol, 3)} ${quantityUnit}`;
-        } else if (desiredUnit === 'g' && haveUnit === 'mg') {
-          // g to mg
-          conversionFactor = 1000;
-          const convertedDose = dVal * conversionFactor;
-          const finalVol = (convertedDose / hVal) * (parseFloat(quantity) || 1);
-          possibleResult = `Auto-converted Desired Dose: ${convertedDose} mg. Volume: ${formatDose(finalVol, 3)} ${quantityUnit}`;
+          possibleResult = `Auto-converted Desired Dose: ${convertedDose} ${haveUnit}. Volume: ${formatDose(finalVol, 3)} ${quantityUnit}`;
         }
 
         if (possibleResult) {
@@ -150,32 +136,13 @@ export default function DosageCalculator() {
     setTimeout(() => setMessage(null), 3000);
   };
 
-  // Compute Formula
+  // Compute Formula — see src/calculations/dosage.ts for the pure calculation
+  // (this pass extracted it out; parsing stays here per docs/adr/0001).
   const D = parseFloat(desiredDose) || 0;
   const H = parseFloat(haveDose) || 0;
   const Q = parseFloat(quantity) || 0;
 
-  let calculatedVolume = 0;
-  let rawFormulaStr = '';
-
-  if (H > 0) {
-    let effectiveD = D;
-    // Auto-conversion in final volume calculation for matching units
-    if (desiredUnit === 'mcg' && haveUnit === 'mg') {
-      effectiveD = D * 0.001;
-    } else if (desiredUnit === 'mg' && haveUnit === 'mcg') {
-      effectiveD = D * 1000;
-    } else if (desiredUnit === 'mg' && haveUnit === 'g') {
-      effectiveD = D * 0.001;
-    } else if (desiredUnit === 'g' && haveUnit === 'mg') {
-      effectiveD = D * 1000;
-    }
-
-    calculatedVolume = (effectiveD / H) * Q;
-    
-    const doseWithConv = effectiveD !== D ? `${effectiveD} ${haveUnit} (converted)` : `${D} ${desiredUnit}`;
-    rawFormulaStr = `(${doseWithConv} / ${H} ${haveUnit}) × ${Q} ${quantityUnit}`;
-  }
+  const { volume: calculatedVolume } = calculateDosage(D, desiredUnit, H, haveUnit, Q);
 
   return (
     <div className="space-y-5" id="dosage-calc-container">

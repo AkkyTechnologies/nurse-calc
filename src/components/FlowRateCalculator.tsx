@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ShieldCheck, Info, AlertTriangle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { formatDose } from '../utils/formatDose';
+import { calculateFlowDuration, calculateFlowRate } from '../calculations/flowRate';
 
 export default function FlowRateCalculator() {
   const [calcMode, setCalcMode] = useState<'rate' | 'duration'>('rate');
@@ -16,30 +17,16 @@ export default function FlowRateCalculator() {
   const [durationVolume, setDurationVolume] = useState<string>('1000');
   const [targetRate, setTargetRate] = useState<string>('125');
 
-  // Logic 1: Flow Rate (mL/hr)
+  // Logic 1: Flow Rate (mL/hr) — see src/calculations/flowRate.ts
   const V = parseFloat(volume) || 0;
   const H = parseFloat(hours) || 0;
   const M = parseFloat(minutes) || 0;
-  const totalHours = H + (M / 60);
+  const { rate: calculatedRate, totalHours } = calculateFlowRate(V, H, M);
 
-  let calculatedRate = 0;
-  if (totalHours > 0) {
-    calculatedRate = V / totalHours;
-  }
-
-  // Logic 2: Infusion Duration
+  // Logic 2: Infusion Duration — see src/calculations/flowRate.ts
   const DV = parseFloat(durationVolume) || 0;
   const TR = parseFloat(targetRate) || 0;
-
-  let durationInHours = 0;
-  let resultHours = 0;
-  let resultMins = 0;
-
-  if (TR > 0) {
-    durationInHours = DV / TR;
-    resultHours = Math.floor(durationInHours);
-    resultMins = Math.round((durationInHours - resultHours) * 60);
-  }
+  const { hours: resultHours, minutes: resultMins } = calculateFlowDuration(DV, TR);
 
   // Alerts
   const showPumpLimitWarning = calcMode === 'rate' && calculatedRate > 999;
