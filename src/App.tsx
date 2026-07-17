@@ -30,6 +30,10 @@ const DISCLAIMER_ACK_KEY = 'nurse_calc_disclaimer_ack_v1';
 // the real device's own status bar and home indicator, so the simulated
 // phone bezel/notch/home-indicator chrome below only renders in the browser.
 const isNative = Capacitor.isNativePlatform();
+// Android has no "home indicator" convention (unlike iOS) and already offers
+// its own back-button navigation to the Dashboard, so the chevron affordance
+// below is iOS-only — it'd just be a redundant, out-of-place control on Android.
+const isAndroid = Capacitor.getPlatform() === 'android';
 
 export default function App() {
   // Navigation active tab — resumes whichever calculator was open last launch.
@@ -190,8 +194,9 @@ export default function App() {
             <img
               src="/nurse-calc-icon.svg"
               alt="Titr8"
+              draggable={false}
               className="w-7 h-7 rounded-[9px] transition-opacity duration-500"
-              style={{ opacity: eggActive ? 0 : 1 }}
+              style={{ opacity: eggActive ? 0 : 1, pointerEvents: 'none', WebkitUserSelect: 'none' } as React.CSSProperties}
             />
             {/* icon → heart while the egg is open */}
             <span
@@ -298,13 +303,15 @@ export default function App() {
 
           {isNative ? (
             <div className="flex justify-center items-center" style={{ height: 'env(safe-area-inset-bottom)' }}>
-              <button
-                onClick={() => setActiveTab('planner')}
-                className="flex items-center justify-center w-8 h-8 text-slate-400 active:scale-90 transition-all cursor-pointer"
-                title="Return to Dashboard Overview"
-              >
-                <ChevronUp className="w-3.5 h-3.5" strokeWidth={2.5} />
-              </button>
+              {!isAndroid && (
+                <button
+                  onClick={() => setActiveTab('planner')}
+                  className="flex items-center justify-center w-8 h-8 text-slate-400 active:scale-90 transition-all cursor-pointer"
+                  title="Return to Dashboard Overview"
+                >
+                  <ChevronUp className="w-3.5 h-3.5" strokeWidth={2.5} />
+                </button>
+              )}
             </div>
           ) : (
             <div className={`py-3.5 border-t flex justify-center items-center select-none z-30 relative transition-colors duration-700 ${eggActive ? 'border-purple-100' : 'border-slate-100'}`}>
